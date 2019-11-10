@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# To use, add 'alias ghd=". ghd"' to your ~/.bashrc, and put ghd in your PATH.
+#
+# Switches to the given github url/repo.
+# Clones to GHD_LOCATION, or /tmp/ghd if not set.
+# Clones via the given schema, or https by default (set GHD_USE_SSH=1 for ssh).
+
+function _ghd_run() {
+  location_root="${GHD_LOCATION:-/tmp/ghd}"
+  use_ssh="${GHD_USE_SSH:-0}"
+  repo_url_or_name="$1"
+  GITHUB_PREFIX='^\(\(https:\/\/\)\|\(git@\)\)github\.com[:/]'
+  GITHUB_SUFFIX='\.git$'
+
+  function get_repo_name() { # repo_url_or_name
+    repo_url_or_name="$1"
+    name="$(\
+      echo "$repo_url_or_name"\
+      | sed -e "s/$GITHUB_PREFIX//g"\
+      | sed -e "s/$GITHUB_SUFFIX//g")"
+    echo "$name"
+  }
+
+  function get_repo_url() { # repo_url_or_name
+    repo_url_or_name="$1"
+    if [[ $repo_url_or_name =~ ^$GITHUB_PREFIX ]]; then
+      echo "$repo_url_or_name"
+    elif [[ $use_ssh ]]; then
+      echo "git@github.com:$repo_url_or_name"
+    else
+      echo "https://github.com/$repo_url_or_name"
+    fi
+  }
+
+  mkdir -p "$location_root"
+
+  # If we've supplied no repo, just go to the root.
+  if [[ -z "$repo_url_or_name" ]]; then
+    cd "$location_root"
+    return 0
+  fi
+
+  # Otherwise, go to the repo's directory (cloning if necessary).
+  repo_name="$(get_repo_name "$repo_url_or_name")"
+  repo_url="$(get_repo_url "$repo_url_or_name")"
+  if [[ ! -d "$location_root/$repo_name" ]]; then
+    git clone -- "$repo_url" "$location_root/$repo_name"
+    if [[ $? != 0 ]]; then
+      return 1 # If git clone fails, exit.
+    fi
+  fi
+  cd "$location_root/$repo_name"
+}
+
+_ghd_run $@
