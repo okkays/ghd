@@ -6,6 +6,14 @@ Utility to manage cloning and cd'ing to Github repos.
 
 The idea behind this tool is to give an easy to access, centralized location for local clones of Github repositories.
 
+## Dependencies
+
+- For `ghd` and `ghd <ambiguous term>`, you'll want [fzf](https://github.com/fzf) in your `PATH`.
+
+If you want to help with development, grab:
+
+- [bats](https://www.archlinux.org/packages/community/any/bash-bats/)
+
 ## Installation
 
 Put `ghd` somewhere in your `PATH`, then add:
