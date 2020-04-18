@@ -21,6 +21,7 @@ to your bashrc. (Sourcing the script allows it to change directory.)
 ```bash
 ghd <repo_name or repo url (with https://github.com or git@github.com:)>
 ghd <already cloned user or organization>
+ghd /
 ghd
 ```
 
