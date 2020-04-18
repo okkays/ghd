@@ -34,12 +34,16 @@ function _ghd_run() {
   }
 
   function fzf_ghd() {
-    if declare -F __fzfcmd; then
-      cd "$location_root/$(find $location_root -maxdepth 2 -printf "%P\n" | \
+    if declare -F __fzfcmd >/dev/null; then
+      dest="$(find $location_root -maxdepth 2 -printf "%P\n" | \
         $(__fzfcmd) --preview="
           printf 'https://www.github.com/{}\n\n' &&
           $pager '$location_root/{}/README.md'" \
       )"
+      if [[ $? != 0 ]]; then
+        return $?;
+      fi
+      cd "$location_root/$dest"
       return 0
     else
       return 1
