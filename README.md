@@ -9,10 +9,12 @@ The idea behind this tool is to give an easy to access, centralized location for
 ## Installation
 
 Put `ghd` somewhere in your `PATH`, then add:
+
 ```bash
 alias ghd=". ghd"
 ```
-to your bashrc.  (Sourcing the script allows it to change directory.)
+
+to your bashrc. (Sourcing the script allows it to change directory.)
 
 ## Usage
 
@@ -34,11 +36,13 @@ To go to the root of your ghd-cloned repos:
 ghd /
 ```
 
-To use [fzf](https://github.com/junegunn/fzf) to go to a pre-cloned ghd repo:
+To use [fzf](https://github.com/junegunn/fzf) to search through your ghd-cloned repos:
 
 ```bash
 ghd
 ```
+
+![Animated example of using ghd results in a fzf list](ghd_fzf.gif)
 
 If you've already checked out some of a user's repos, you can switch to that user's directory:
 
