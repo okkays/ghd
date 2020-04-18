@@ -28,6 +28,18 @@ For example, to clone and cd to this repo:
 ghd okkays/ghd
 ```
 
+To go to the root of your ghd-cloned repos:
+
+```bash
+ghd /
+```
+
+To use [fzf](https://github.com/junegunn/fzf) to go to a pre-cloned ghd repo:
+
+```bash
+ghd
+```
+
 If you've already checked out some of a user's repos, you can switch to that user's directory:
 
 ```bash
@@ -50,6 +62,7 @@ ghd reads the following environment variables:
 
 - `GHD_LOCATION`: The directory in which to store repos (`/tmp/ghd` by default).
 - `GHD_USE_SSH`: Whether to clone via ssh (uses https by default).
+- `PAGER`: The pager to use for showing fzf preview results.
 
 To configure them, add (for example):
 

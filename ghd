@@ -9,16 +9,16 @@
 function _ghd_run() {
   location_root="${GHD_LOCATION:-/tmp/ghd}"
   use_ssh="${GHD_USE_SSH:-0}"
+  pager="${PAGER:-cat}"
   repo_url_or_name="$1"
   GITHUB_PREFIX='^\(\(https:\/\/\)\|\(git@\)\)github\.com[:/]'
   GITHUB_SUFFIX='\.git$'
 
   function get_repo_name() { # repo_url_or_name
     repo_url_or_name="$1"
-    name="$(\
-      echo "$repo_url_or_name"\
-      | sed -e "s/$GITHUB_PREFIX//g"\
-      | sed -e "s/$GITHUB_SUFFIX//g")"
+    name="$(echo "$repo_url_or_name" | \
+      sed -e "s/$GITHUB_PREFIX//g" | \
+      sed -e "s/$GITHUB_SUFFIX//g")"
     echo "$name"
   }
 
@@ -33,12 +33,28 @@ function _ghd_run() {
     fi
   }
 
+  function fzf_ghd() {
+    if declare -F __fzfcmd; then
+      cd "$location_root/$(find $location_root -maxdepth 2 -printf "%P\n" | \
+        $(__fzfcmd) --preview="
+          printf 'https://www.github.com/{}\n\n' &&
+          $pager '$location_root/{}/README.md'" \
+      )"
+      return 0
+    else
+      return 1
+    fi
+  }
+
   mkdir -p "$location_root"
 
-  # If we've supplied no repo, just go to the root.
   if [[ -z "$repo_url_or_name" ]]; then
-    cd "$location_root"
-    return 0
+    if fzf_ghd; then
+      return 0
+    else
+      cd "$location_root"
+      return 0
+    fi
   fi
 
   # Otherwise, go to the repo's directory (cloning if necessary).
