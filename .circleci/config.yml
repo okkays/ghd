@@ -29,8 +29,9 @@ commands:
             cmake \
               -DCMAKE_BUILD_TYPE=Release \
               -DCMAKE_INSTALL_PREFIX=/usr/local \
-            make -j2 || exit 1
-            make install DESTDIR=/tmp/kcov-build || exit 1
+              ..
+            make
+            make install
 
 
   run-coverage:
