@@ -3,8 +3,12 @@ version: 2.1
 commands:
   install-bats:
     steps:
-      - run: cd /tmp && git clone https://github.com/bats-core/bats-core.git && cd bats-core
-      - run: ./install.sh /usr/local
+      - run:
+        sudo add-apt-repository ppa:duggan/bats
+      - run:
+        sudo apt-get update
+      - run:
+        sudo apt-get install bats
   run-bats:
     steps:
       - run: bats ./test_ghd.sh
