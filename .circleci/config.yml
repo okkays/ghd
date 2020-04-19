@@ -61,9 +61,9 @@ jobs:
   run-coverage:
     executor: bats
     steps:
+      - checkout
       - install-bats
       - install-kcov
-      - checkout
       - run-coverage
 
 
