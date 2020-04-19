@@ -36,10 +36,17 @@ jobs:
       - checkout
       - install-bats
       - run-bats
+  run-coverage:
+    executor: bats
+    steps:
+      - checkout
+      - install-coverage
       - run-coverage
+
 
 workflows:
   version: 2.1
   test:
     jobs:
       - run-bats
+      - run-coverage
