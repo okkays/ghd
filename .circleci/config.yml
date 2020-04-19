@@ -1,23 +1,27 @@
 version: 2.1
-jobs:
+
+commands:
   install-bats:
-    steps:
-      - run:
-        command: |
-          cd /tmp && git clone https://github.com/bats-core/bats-core.git && cd bats-core
-          ./install.sh /usr/local
-        name: Install BATS (bash testing)
+    - run: cd /tmp && git clone https://github.com/bats-core/bats-core.git && cd bats-core
+    - run: ./install.sh /usr/local
   run-bats:
+    - run: bats ./test_ghd.sh
+
+executors:
+  bats:
+    docker:
+      - image: cimg/base:2020.01
+
+jobs:
+  run-bats:
+    executor: bats
     steps:
       - checkout
-      - run:
-          command: |
-            bats ./test_ghd.sh
+      - install-bats
+      - run-bats
+
 workflows:
   version: 2.1
-  docker:
-    - image: cimg/base:2020.01
   test:
     jobs:
-      - install-bats
       - run-bats
