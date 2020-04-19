@@ -53,9 +53,9 @@ jobs:
   run-bats:
     executor: bats
     steps:
+      - checkout
       - install-bats
       - install-tap2junit
-      - checkout
       - run-bats
 
   run-coverage:
