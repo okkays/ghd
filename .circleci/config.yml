@@ -10,21 +10,38 @@ commands:
 
   install-bats:
     steps:
-      - run: sudo npm install --silent -g bats
+      - run:
+          command: |
+            git clone https://github.com/bats-core/bats-core
+            cd bats-core
+            sudo bash ./install.sh /usr/local
 
   install-kcov:
     steps:
       - run:
           command: |
             sudo apt-get update
-            sudo apt-get install -y kcov
+            sudo apt-get install -y binutils-dev libcurl4-openssl-dev zlib1g-dev libdw-dev libiberty-dev build-essential cmake
+            git clone https://github.com/SimonKagstrom/kcov.git
+            cd kcov
+            mkdir build
+            cd build
+            cmake \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_INSTALL_PREFIX=/usr/local \
+              ..
+            make
+            sudo make install
+
 
   run-coverage:
     steps:
-      - run: kcov --include-path=. coverage /usr/bin/env bats ./test_ghd.sh
-
+      - run:
+          command: |
+            kcov --include-path=~/project coverage /usr/local/bin/bats ~/project/test_ghd.sh
+            mv ~/project/coverage/bats.*/cobertura.xml ~/project/coverage
       - codecov/upload:
-        file: coverage
+          file: coverage/cobertura.xml
 
   run-bats:
     steps:
@@ -49,17 +66,17 @@ jobs:
   run-bats:
     executor: bats
     steps:
+      - checkout
       - install-bats
       - install-tap2junit
-      - checkout
       - run-bats
 
   run-coverage:
     executor: bats
     steps:
+      - checkout
       - install-bats
       - install-kcov
-      - checkout
       - run-coverage
 
 
