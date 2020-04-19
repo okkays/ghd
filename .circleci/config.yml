@@ -25,20 +25,18 @@ commands:
 executors:
   bats:
     docker:
-      - image: cimg/base:2020.01
+      - image: particleflux/circleci-bats-kcov:1.0.0
 
 jobs:
   run-bats:
     executor: bats
     steps:
       - checkout
-      - install-bats
       - run-bats
   run-coverage:
     executor: bats
     steps:
       - checkout
-      - install-coverage
       - run-coverage
 
 
