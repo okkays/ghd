@@ -17,7 +17,7 @@ commands:
             mkdir -p ~/test-results
             bats --tap ./test_ghd.sh | tee ~/test-results/results.tap
             if [ -f ~/test-results/results.tap ]; then
-              sudo apt-get install -y libtap-formatter-junit-perl
+              apt-get install -y libtap-formatter-junit-perl
               cd ~/test-results/example && tap2junit results.tap
             fi
       - store_test_results:
