@@ -36,6 +36,7 @@ jobs:
       - checkout
       - install-bats
       - run-bats
+      - run-coverage
 
 workflows:
   version: 2.1
