@@ -1,4 +1,4 @@
-# Github Directory (ghd) [![CircleCI](https://circleci.com/gh/okkays/ghd.svg?style=shield)](https://circleci.com/gh/okkays/ghd)
+# Github Directory (ghd) [![CircleCI](https://circleci.com/gh/okkays/ghd.svg?style=shield)](https://circleci.com/gh/okkays/ghd) [![codecov](https://codecov.io/gh/okkays/ghd/branch/master/graph/badge.svg)](https://codecov.io/gh/okkays/ghd)
 
 Utility to manage cloning and cd'ing to Github repos.
 
