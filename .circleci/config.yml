@@ -38,7 +38,7 @@ commands:
     steps:
       - run: kcov --include-path=~/project coverage /usr/local/bin/bats ~/project/test_ghd.sh
       - codecov/upload:
-          file: coverage/kcov-merged/cobertura.xml
+          file: coverage
 
   run-bats:
     steps:
