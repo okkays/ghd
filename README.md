@@ -6,6 +6,14 @@ Utility to manage cloning and cd'ing to Github repos.
 
 The idea behind this tool is to give an easy to access, centralized location for local clones of Github repositories.
 
+## Dependencies
+
+- For `ghd` and `ghd <ambiguous term>`, you'll want [fzf](https://github.com/fzf) in your `PATH`.
+
+If you want to help with development, grab:
+
+- [bats-core](https://github.com/bats-core/bats-core#installation)
+
 ## Installation
 
 Put `ghd` somewhere in your `PATH`, then add:
@@ -77,3 +85,17 @@ export GHD_USE_SSH=1
 ```
 
 to `~/.bashrc`
+
+## Running tests
+
+Just run:
+
+```bash
+./test_ghd.sh
+```
+
+I recommend using [entr](http://eradman.com/entrproject/) for this:
+
+```bash
+ls | entr ./test_ghd.sh
+```
