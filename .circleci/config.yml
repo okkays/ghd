@@ -4,30 +4,61 @@ orbs:
   codecov: codecov/codecov@1.0.5
 
 commands:
+  install-tap2junit:
+    steps:
+      - run: sudo pip install tap2junit
+
+  install-bats:
+    steps:
+      - run: sudo npm install --silent -g bats
+
+  install-kcov:
+    steps:
+      - run:
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y kcov
+
   run-coverage:
     steps:
-      - run: kcov --include-path=. coverage bats ./test_ghd.sh
+      - run: kcov --include-path=. coverage /usr/bin/env bats ./test_ghd.sh
+
       - codecov/upload:
         file: coverage
 
   run-bats:
     steps:
-      - run: bats ./test_ghd.sh
+      - run:
+          command: |
+            mkdir -p ~/test-results
+            echo 'TAP version 13' > ~/test-results/results.tap
+            bats --tap ./test_ghd.sh | tee -a ~/test-results/results.tap
+            if [ -f ~/test-results/results.tap ]; then
+              cd ~/test-results && tap2junit -i results.tap -o results.xml
+            fi
+      - store_test_results:
+          path: ~/test-results
+
 
 executors:
   bats:
     docker:
-      - image: particleflux/circleci-bats-kcov:1.0.0
+      - image: circleci/python:stretch-node
 
 jobs:
   run-bats:
     executor: bats
     steps:
+      - install-bats
+      - install-tap2junit
       - checkout
       - run-bats
+
   run-coverage:
     executor: bats
     steps:
+      - install-bats
+      - install-kcov
       - checkout
       - run-coverage
 
