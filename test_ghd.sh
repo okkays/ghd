@@ -19,7 +19,6 @@ setup() {
 
   git() {
     echo "MOCK: git $@"
-    mkdir -p "$4"
   }
 
   cd() {
@@ -102,6 +101,41 @@ setup() {
   run . ./ghd $repo_name
   [[ "$output" != *"MOCK: git "*"git@github.com:$repo"* ]]
   [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$repo" ]]
+  [[ "${#lines[@]}" -eq 1 ]]
+  [[ "$status" -eq 0 ]]
+}
+
+@test "pulls cloned repo if repo_name! is used" {
+  mkdir -p "$GHD_LOCATION/$repo/.git"
+  run . ./ghd $repo_name!
+  [[ "$output" == *"MOCK: git -C $GHD_LOCATION/$repo pull --all"* ]]
+  [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$repo" ]]
+  [[ "${#lines[@]}" -eq 2 ]]
+  [[ "$status" -eq 0 ]]
+}
+
+@test "pulls cloned repo if repo! is used" {
+  mkdir -p "$GHD_LOCATION/$repo/.git"
+  run . ./ghd $repo!
+  [[ "$output" == *"MOCK: git -C $GHD_LOCATION/$repo pull --all"* ]]
+  [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$repo" ]]
+  [[ "${#lines[@]}" -eq 2 ]]
+  [[ "$status" -eq 0 ]]
+}
+
+@test "pulls cloned repo if url! is used" {
+  mkdir -p "$GHD_LOCATION/$repo/.git"
+  run . ./ghd git@github.com:$repo!
+  [[ "$output" == *"MOCK: git -C $GHD_LOCATION/$repo pull --all"* ]]
+  [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$repo" ]]
+  [[ "${#lines[@]}" -eq 2 ]]
+  [[ "$status" -eq 0 ]]
+}
+
+@test "doesn't pull orgs" {
+  mkdir -p "$GHD_LOCATION/$repo/.git"
+  run . ./ghd $repo_owner!
+  [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$repo_owner" ]]
   [[ "${#lines[@]}" -eq 1 ]]
   [[ "$status" -eq 0 ]]
 }

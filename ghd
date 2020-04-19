@@ -11,8 +11,25 @@ function _ghd_run() {
   use_ssh="${GHD_USE_SSH:-0}"
   pager="${PAGER:-cat}"
   repo_url_or_name="$1"
+  should_pull=0
+  if [[ $repo_url_or_name == *"!" ]]; then
+    repo_url_or_name="${repo_url_or_name::-1}"
+    should_pull=1
+  fi
   GITHUB_PREFIX='^\(\(https:\/\/\)\|\(git@\)\)github\.com[:/]'
   GITHUB_SUFFIX='\.git$'
+
+  function maybe_pull() { # directory
+    directory="$1"
+    if [[ $should_pull -eq 0 ]]; then
+      return 1
+    fi
+    if [[ -d "$directory/.git" ]]; then
+      git -C "$directory" pull --all
+      return 0
+    fi
+    return 1
+  }
 
   function get_repo_name() { # repo_url_or_name
     repo_url_or_name="$1"
@@ -45,6 +62,7 @@ function _ghd_run() {
       if [[ "$fzf_status" -ne 0 ]]; then
         return "$fzf_status";
       fi
+      maybe_pull "$location_root/$dest"
       cd "$location_root/$dest"
       return 0
     else
@@ -65,6 +83,7 @@ function _ghd_run() {
 
     num_matches="$(echo "$matches" | wc -l)"
     if [ "$num_matches" -eq 1 ]; then
+      maybe_pull "$matches"
       cd "$matches"
       return 0
     fi
@@ -86,6 +105,7 @@ function _ghd_run() {
   fi
 
   if [[ "$repo_url_or_name" == "/" ]]; then
+    maybe_pull "$location_root"
     cd "$location_root"
     return 0
   fi
@@ -101,7 +121,9 @@ function _ghd_run() {
       return 1 # If git clone fails, exit.
     fi
   fi
+  maybe_pull "$location_root/$repo_name"
   cd "$location_root/$repo_name"
+  return 0
 }
 
 _ghd_run $@
