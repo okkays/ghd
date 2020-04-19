@@ -1,11 +1,15 @@
 version: 2.1
 
+orbs:
+  codecov: codecov/codecov@1.0.5
+
 commands:
-  install-bats:
+  run-coverage:
     steps:
-      - run: sudo add-apt-repository ppa:duggan/bats
-      - run: sudo apt-get update
-      - run: sudo apt-get install bats
+      - run: kcov --include-path=. coverage bats ./test_ghd.sh
+      - codecov/upload:
+        file: coverage
+
   run-bats:
     steps:
       - run: bats ./test_ghd.sh
@@ -13,18 +17,24 @@ commands:
 executors:
   bats:
     docker:
-      - image: cimg/base:2020.01
+      - image: particleflux/circleci-bats-kcov:1.0.0
 
 jobs:
   run-bats:
     executor: bats
     steps:
       - checkout
-      - install-bats
       - run-bats
+  run-coverage:
+    executor: bats
+    steps:
+      - checkout
+      - run-coverage
+
 
 workflows:
   version: 2.1
   test:
     jobs:
       - run-bats
+      - run-coverage
