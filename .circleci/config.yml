@@ -2,9 +2,13 @@ version: 2.1
 workflows:
   test:
     jobs:
-      - steps:
-        - install-bats
-        - run:
-          name: Inline Tests using BATS
-          command: |
-            bats ./test_ghd.sh
+      - test-bats
+
+jobs:
+  test-bats:
+    steps:
+      - install-bats
+      - run:
+        name: BATS tests
+        command: |
+          bats ./test_ghd.sh
