@@ -2,10 +2,12 @@ version: 2.1
 
 commands:
   install-bats:
-    - run: cd /tmp && git clone https://github.com/bats-core/bats-core.git && cd bats-core
-    - run: ./install.sh /usr/local
+    steps:
+      - run: cd /tmp && git clone https://github.com/bats-core/bats-core.git && cd bats-core
+      - run: ./install.sh /usr/local
   run-bats:
-    - run: bats ./test_ghd.sh
+    steps:
+      - run: bats ./test_ghd.sh
 
 executors:
   bats:
