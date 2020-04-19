@@ -21,14 +21,7 @@ commands:
     steps:
       - run:
           command: |
-            sudo apt-get install -y binutils-dev libcurl4-openssl-dev zlib1g-dev libdw-dev libiberty-dev
-            git clone https://github.com/SimonKagstrom/kcov
-            mkdir -p kcov/build
-            cd kcov/build
-            cmake \
-              -DCMAKE_BUILD_TYPE=Release \
-            make -j2 || exit 1
-            make install
+            sudo apt-get install -y kcov
 
   run-coverage:
     steps:
