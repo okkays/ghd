@@ -8,7 +8,7 @@ The idea behind this tool is to give an easy to access, centralized location for
 
 ## Dependencies
 
-- For `ghd` and `ghd <ambiguous term>`, you'll want [fzf](https://github.com/fzf) in your `PATH`.
+- For `ghd` and `ghd <ambiguous term>`, you'll want [fzf](https://github.com/junegunn/fzf) in your `PATH`.
 
 If you want to help with development, grab:
 
