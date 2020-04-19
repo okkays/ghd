@@ -25,7 +25,7 @@ commands:
 
   run-coverage:
     steps:
-      - run: kcov --bash-dont-parse-binary-dir --include-path=~/project coverage /usr/local/bin/bats ~/project/test_ghd.sh
+      - run: kcov --include-path=~/project coverage /usr/local/bin/bats ~/project/test_ghd.sh
       - codecov/upload:
           file: coverage/kcov-merged/cobertura.xml
 
