@@ -10,7 +10,10 @@ commands:
 
   install-bats:
     steps:
-      - run: sudo npm install --silent -g bats
+      - run:
+          command: |
+            curl -#L https://github.com/bats-core/bats-core/archive/master.zip | unzip -
+            sudo bash bats-core-master/install.sh /usr/local
 
   install-kcov:
     steps:
@@ -21,7 +24,7 @@ commands:
 
   run-coverage:
     steps:
-      - run: sudo kcov --include-path=. coverage /usr/bin/env bats ./test_ghd.sh
+      - run: kcov --include-path=. coverage /usr/bin/env bats ./test_ghd.sh
 
       - codecov/upload:
         file: coverage
