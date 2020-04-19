@@ -2,7 +2,7 @@ version: 2.1
 workflows:
   test:
     jobs:
-      steps:
+      - steps:
         - install-bats
         - run:
           name: Inline Tests using BATS
