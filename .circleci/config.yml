@@ -4,20 +4,12 @@ orbs:
   codecov: codecov/codecov@1.0.5
 
 commands:
-  install-coverage:
-    steps:
-      - run: sudo apt-get install kcov
   run-coverage:
     steps:
       - run: kcov --include-path=. coverage bats ./test_ghd.sh
       - codecov/upload:
         file: coverage
 
-  install-bats:
-    steps:
-      - run: sudo add-apt-repository ppa:duggan/bats
-      - run: sudo apt-get update
-      - run: sudo apt-get install bats
   run-bats:
     steps:
       - run: bats ./test_ghd.sh
