@@ -5,22 +5,25 @@ orbs:
 
 commands:
   install-tap2junit:
-    - run: sudo apt-get install -y libtap-formatter-junit-perl
+    steps:
+      - run: sudo apt-get install -y libtap-formatter-junit-perl
 
   install-bats:
-    - run: npm install -g bats
+    steps:
+      - run: npm install -g bats
 
   install-kcov:
-    - run:
-        comomand: |
-          sudo apt-get install binutils-dev libcurl4-openssl-dev zlib1g-dev libdw-dev libiberty-dev
-          git clone https://github.com/SimonKagstrom/kcov
-          mkdir -p kcov/build
-          cd kcov/build
-          cmake \
-            -DCMAKE_BUILD_TYPE=Release \
-          make -j2 || exit 1
-          make install
+    steps:
+      - run:
+          command: |
+            sudo apt-get install binutils-dev libcurl4-openssl-dev zlib1g-dev libdw-dev libiberty-dev
+            git clone https://github.com/SimonKagstrom/kcov
+            mkdir -p kcov/build
+            cd kcov/build
+            cmake \
+              -DCMAKE_BUILD_TYPE=Release \
+            make -j2 || exit 1
+            make install
 
   run-coverage:
     steps:
