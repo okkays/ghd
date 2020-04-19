@@ -102,19 +102,19 @@ to `~/.bashrc`
 Just run:
 
 ```bash
-bats ./test_ghd.sh
+bats ./test.bats
 ```
 
 I recommend using [entr](http://eradman.com/entrproject/) for this:
 
 ```bash
-ls | entr bats ./test_ghd.sh
+ls | entr bats ./test.bats
 ```
 
 To get coverage results, run:
 
 ```bash
-kcov --include-path=. coverage bats ./test_ghd.sh
+kcov --include-path=. coverage bats ./test.bats
 ```
 
 This will create a `coverage` folder with test coverage results.
