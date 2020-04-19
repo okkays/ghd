@@ -39,6 +39,16 @@ For example, to clone and cd to this repo:
 ghd okkays/ghd
 ```
 
+To then `git pull --all` updates from and cd to that same repo:
+
+```bash
+ghd okkays/ghd!
+# or
+ghd ghd!
+# or
+ghd gh!<Enter>
+```
+
 To go to the root of your ghd-cloned repos:
 
 ```bash
