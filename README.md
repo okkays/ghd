@@ -12,7 +12,8 @@ The idea behind this tool is to give an easy to access, centralized location for
 
 If you want to help with development, grab:
 
-- [bats-core](https://github.com/bats-core/bats-core#installation)
+- [bats-core](https://github.com/bats-core/bats-core#installation) for testing
+- [kcov](http://simonkagstrom.github.io/kcov/index.html) for coverage
 
 ## Installation
 
@@ -101,11 +102,19 @@ to `~/.bashrc`
 Just run:
 
 ```bash
-./test_ghd.sh
+bats ./test_ghd.sh
 ```
 
 I recommend using [entr](http://eradman.com/entrproject/) for this:
 
 ```bash
-ls | entr ./test_ghd.sh
+ls | entr bats ./test_ghd.sh
 ```
+
+To get coverage results, run:
+
+```bash
+kcov --include-path=. coverage bats ./test_ghd.sh
+```
+
+This will create a `coverage` folder with test coverage results.
