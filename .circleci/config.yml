@@ -25,10 +25,10 @@ commands:
 
   run-coverage:
     steps:
-      - run: kcov --include-path=. coverage bats ./test_ghd.sh
+      - run: kcov --include-path=. coverage /use/bin/env bats ./test_ghd.sh
 
       - codecov/upload:
-        file: coverage
+        file: coverage/kcov-merged/cobertura.xml
 
   run-bats:
     steps:
