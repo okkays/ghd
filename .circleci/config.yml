@@ -38,7 +38,7 @@ commands:
     steps:
       - run:
           command: |
-            kcov --include-path=~/project coverage /usr/local/bin/bats ~/project/test_ghd.sh
+            kcov --include-path=~/project coverage /usr/local/bin/bats ~/project/test.bats
             mv ~/project/coverage/bats.*/cobertura.xml ~/project/coverage
       - codecov/upload:
           file: coverage/cobertura.xml
@@ -49,7 +49,7 @@ commands:
           command: |
             mkdir -p ~/test-results
             echo 'TAP version 13' > ~/test-results/results.tap
-            bats --tap ./test_ghd.sh | tee -a ~/test-results/results.tap
+            bats --tap ./test.bats | tee -a ~/test-results/results.tap
             if [ -f ~/test-results/results.tap ]; then
               cd ~/test-results && tap2junit -i results.tap -o results.xml
             fi
