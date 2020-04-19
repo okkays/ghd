@@ -1,0 +1,30 @@
+version: 2.1
+
+commands:
+  install-bats:
+    steps:
+      - run: sudo add-apt-repository ppa:duggan/bats
+      - run: sudo apt-get update
+      - run: sudo apt-get install bats
+  run-bats:
+    steps:
+      - run: bats ./test_ghd.sh
+
+executors:
+  bats:
+    docker:
+      - image: cimg/base:2020.01
+
+jobs:
+  run-bats:
+    executor: bats
+    steps:
+      - checkout
+      - install-bats
+      - run-bats
+
+workflows:
+  version: 2.1
+  test:
+    jobs:
+      - run-bats
