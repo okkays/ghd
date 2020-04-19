@@ -50,22 +50,19 @@ executors:
       - image: cimg/base:2020.01
 
 jobs:
-  install:
-    executor: bats
-    steps:
-      - install-bats
-      - install-kcov
-      - install-tap2junit
-
   run-bats:
     executor: bats
     steps:
+      - install-bats
+      - install-tap2junit
       - checkout
       - run-bats
 
   run-coverage:
     executor: bats
     steps:
+      - install-bats
+      - install-kcov
       - checkout
       - run-coverage
 
