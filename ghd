@@ -26,7 +26,7 @@ function _ghd_run() {
     repo_url_or_name="$1"
     if [[ $repo_url_or_name =~ ^$GITHUB_PREFIX ]]; then
       echo "$repo_url_or_name"
-    elif [[ $use_ssh ]]; then
+    elif [[ $use_ssh -eq 1 ]]; then
       echo "git@github.com:$repo_url_or_name"
     else
       echo "https://github.com/$repo_url_or_name"
@@ -41,8 +41,9 @@ function _ghd_run() {
           printf 'https://www.github.com/{}\n\n' &&
           $pager '$location_root/{}/README.md'" \
       )"
-      if [[ $? != 0 ]]; then
-        return $?;
+      fzf_status="$?"
+      if [[ "$fzf_status" -ne 0 ]]; then
+        return "$fzf_status";
       fi
       cd "$location_root/$dest"
       return 0
@@ -80,12 +81,13 @@ function _ghd_run() {
   mkdir -p "$location_root"
 
   if [[ -z "$repo_url_or_name" ]]; then
-    if fzf_ghd; then
-      return 0
-    else
-      cd "$location_root"
-      return 0
-    fi
+    fzf_ghd
+    return $?
+  fi
+
+  if [[ "$repo_url_or_name" == "/" ]]; then
+    cd "$location_root"
+    return 0
   fi
 
   repo_name="$(get_repo_name "$repo_url_or_name")"

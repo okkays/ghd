@@ -12,7 +12,7 @@ The idea behind this tool is to give an easy to access, centralized location for
 
 If you want to help with development, grab:
 
-- [bats](https://www.archlinux.org/packages/community/any/bash-bats/)
+- [bats-core](https://github.com/bats-core/bats-core#installation)
 
 ## Installation
 
@@ -85,3 +85,17 @@ export GHD_USE_SSH=1
 ```
 
 to `~/.bashrc`
+
+## Running tests
+
+Just run:
+
+```bash
+./test_ghd.sh
+```
+
+I recommend using [entr](http://eradman.com/entrproject/) for this:
+
+```bash
+ls | entr ./test_ghd.sh
+```
