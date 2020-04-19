@@ -21,10 +21,7 @@ commands:
 
   run-coverage:
     steps:
-      - run:
-          command: |
-            bats ./test_ghd.sh > ~/bats-out
-            kcov --include-path=. coverage ~/bats-out
+      - run: kcov --include-path=. coverage "$(which bats)" ./test_ghd.sh
       - codecov/upload:
         file: coverage
 
