@@ -18,12 +18,9 @@ commands:
           mkdir -p kcov/build
           cd kcov/build
           cmake \
-            -DCMAKE_C_FLAGS:STRING="-O3 -march=i686" \
             -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_INSTALL_PREFIX=/usr \
-            ..
           make -j2 || exit 1
-          make install DESTDIR=/tmp/kcov-build || exit 1
+          make install
 
   run-coverage:
     steps:
