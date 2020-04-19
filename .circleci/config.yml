@@ -12,8 +12,9 @@ commands:
     steps:
       - run:
           command: |
-            curl -#L https://github.com/bats-core/bats-core/archive/master.zip | unzip -
-            sudo bash bats-core-master/install.sh /usr/local
+            git clone https://github.com/bats-core/bats-core
+            cd bats-core
+            sudo bash install.sh /usr/local
 
   install-kcov:
     steps:
