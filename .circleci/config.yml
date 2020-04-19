@@ -14,7 +14,7 @@ commands:
           command: |
             git clone https://github.com/bats-core/bats-core
             cd bats-core
-            sudo bash install.sh /usr/local
+            sudo bash ./install.sh /usr/local
 
   install-kcov:
     steps:
