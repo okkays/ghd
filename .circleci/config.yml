@@ -12,8 +12,6 @@ commands:
       - run: kcov --include-path=. coverage bats ./test_ghd.sh
       - codecov/upload:
         file: coverage
-      - store_artifacts:
-        path: coverage
 
   install-bats:
     steps:
