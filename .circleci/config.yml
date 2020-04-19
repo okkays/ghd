@@ -6,20 +6,10 @@ orbs:
 commands:
   install-tap2junit:
     steps:
-      - run:
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y libtap-formatter-junit-perl
-
+      - run: pip install --user tap2junit
   install-bats:
     steps:
-      - run:
-          command: |
-            curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-            sudo apt-get update
-            sudo apt-get install -y nodejs
-            sudo apt-get install -y build-essential
-            sudo npm install --silent -g bats
+      - run: sudo npm install --silent -g bats
 
   install-kcov:
     steps:
@@ -41,7 +31,7 @@ commands:
             mkdir -p ~/test-results
             bats --tap ./test_ghd.sh | tee ~/test-results/results.tap
             if [ -f ~/test-results/results.tap ]; then
-              cd ~/test-results/example && tap2junit results.tap
+              cd ~/test-results/example && tap2junit -i results.tap -o results.xml
             fi
       - store_test_results:
           path: ~/test-results
@@ -50,7 +40,7 @@ commands:
 executors:
   bats:
     docker:
-      - image: cimg/base:2020.01
+      - image: circleci/python:stretch-node
 
 jobs:
   run-bats:
