@@ -31,6 +31,31 @@ function _ghd_run() {
     return 1
   }
 
+  function get_user() {
+    email="$(git config --get user.email 2>/dev/null)"
+    if [[ ! -z "$email" ]]; then
+      echo "$email"
+    fi;
+    if [[ ! -z "$GITHUB_USER" ]]; then
+      echo "${GITHUB_USER}"
+    fi;
+    echo "$USER"
+    return 0
+  }
+
+  function get_token() {
+    token="$GITHUB_TOKEN"
+    if [[ -z "$GITHUB_TOKEN" ]]; then
+      >&2 echo "GITHUB_TOKEN is empty!"
+      >&2 echo "To access private Github repositories:"
+      >&2 echo "1. Go to https://github.com/settings/tokens."
+      >&2 echo "2. Create a Personal Access Token."
+      >&2 echo "3. Store the value of that token as the GITHUB_TOKEN environment variable."
+      return 1
+    fi
+    echo "$GITHUB_TOKEN"
+  }
+
   function get_repo_name() { # repo_url_or_name
     repo_url_or_name="$1"
     name="$(echo "$repo_url_or_name" | \
