@@ -35,7 +35,7 @@ function _ghd_run() {
     return 1
   }
 
-  function get_my_repos() {
+  function get_remote_repos() {
     auth="$(curl_auth 0)"
     auth_status="$?"
     if [[ "$auth_status" -ne 0 ]]; then
@@ -51,11 +51,18 @@ function _ghd_run() {
 
   function get_repos() { # name?
     name="$1"
-    if [[ -z "$name" ]]; then
-      find "$location_root" -maxdepth 2 -printf "%P\n"
-    else
-      find "$location_root" -maxdepth 2 -name "$name" -printf "%P\n"
+    repos="$(get_local_repos)"
+    if [[ ! -z "$repos" ]]; then
+      repos="$(echo -e "$repos\n")"
     fi
+    if [[ ! -z "$name" ]]; then
+      repos="$(echo "$repos" | awk "/$name$/")"
+    fi
+    echo "$repos"
+  }
+
+  function get_local_repos() { # name?
+    find "$location_root" -maxdepth 2 -printf "%P\n"
   }
 
   function curl_line_to_repo_name() { # line
