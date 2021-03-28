@@ -50,10 +50,21 @@ function _ghd_run() {
     fi
   }
 
+  function search_local() { # name
+    name="$1"
+
+    if [[ -z "$name" ]]; then
+      find $location_root -maxdepth 2 -printf "%P\n"
+      return 0
+    fi
+
+    find $location_root -maxdepth 2 -name "$name"
+  }
+
   function fzf_ghd() { # query
     query="$1"
     if declare -F __fzfcmd >/dev/null; then
-      dest="$(find $location_root -maxdepth 2 -printf "%P\n" | \
+      dest="$(search_local | \
         $(__fzfcmd) --query="$query" --preview="
           printf 'https://www.github.com/{}\n\n' &&
           $pager '$location_root/{}/README.md'" \
@@ -72,7 +83,7 @@ function _ghd_run() {
 
   function handle_single_name() { # name
     single_name="$1"
-    matches="$(find $location_root -maxdepth 2 -name "$single_name")"
+    matches="$(search_local "$single_name")"
     if [[ -z $matches ]]; then
       if fzf_ghd "$single_name"; then
         return 0
