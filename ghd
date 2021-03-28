@@ -50,6 +50,10 @@ function _ghd_run() {
     fi
   }
 
+  function has_cli() {
+    return gh auth status > /dev/null 2>&1
+  }
+
   function search_local() { # name
     name="$1"
 
@@ -68,11 +72,17 @@ function _ghd_run() {
       return 1
     fi
 
-    if ! gh auth status > /dev/null 2>&1; then
+    if ! has_cli; then
       return 2
     fi
 
-    gh repo list --limit 10000 | cut -f1
+    repos="$(gh repo list --limit 10000 | cut -f1)"
+
+    if [[ -z "$name" ]]; then
+      echo "$repos"
+    fi
+
+    echo "$repos" | grep "$name"
   }
 
   function get_repo_list() { # name
