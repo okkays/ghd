@@ -58,7 +58,7 @@ function _ghd_run() {
       return 0
     fi
 
-    find $location_root -maxdepth 2 -name "$name"
+    find $location_root -maxdepth 2 -name "*$name*"
   }
 
   function search_gh() { # name
@@ -85,10 +85,16 @@ function _ghd_run() {
       sort -u
   }
 
-  function fzf_ghd() { # query
+  function fzf_ghd() { # query matches
     query="$1"
+    matches="$2"
+
+    if [[ -z "$matches" ]]; then
+      return 2
+    fi
+
     if declare -F __fzfcmd >/dev/null; then
-      dest="$(get_repo_list | \
+      dest="$(echo "$matches" | \
         $(__fzfcmd) --query="$query" --preview="
           printf 'https://www.github.com/{}\n\n' &&
           $pager '$location_root/{}/README.md'" \
@@ -107,9 +113,9 @@ function _ghd_run() {
 
   function handle_single_name() { # name
     single_name="$1"
-    matches="$(search_local "$single_name")"
+    matches="$(get_repo_list "$single_name")"
     if [[ -z $matches ]]; then
-      if fzf_ghd "$single_name"; then
+      if fzf_ghd "$single_name" "$matches"; then
         return 0
       fi
       echo "No cloned repository, user, or organization found for: $single_name"
@@ -123,7 +129,7 @@ function _ghd_run() {
       return 0
     fi
 
-    if fzf_ghd "$single_name"; then
+    if fzf_ghd "$single_name" "$matches"; then
       return 0
     fi
 
@@ -135,7 +141,7 @@ function _ghd_run() {
   mkdir -p "$location_root"
 
   if [[ -z "$repo_url_or_name" ]]; then
-    fzf_ghd
+    fzf_ghd '' "$(get_repo_list)"
     return $?
   fi
 

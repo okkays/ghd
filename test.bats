@@ -180,11 +180,11 @@ setup() {
   [[ "$status" -eq 1 ]]
 }
 
-@test "calls fzf for no matches" {
+@test "exits gracefully when no matches" {
   run . ./ghd $repo_name
-  [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/fzf_called" ]]
+  [[ "$output" == *"No cloned repository, user, or organization found for: $repo_name"* ]]
   [[ "${#lines[@]}" -eq 1 ]]
-  [[ "$status" -eq 0 ]]
+  [[ "$status" -eq 1 ]]
 }
 
 @test "exits gracefully when no matches and no fzf" {
@@ -196,6 +196,8 @@ setup() {
 }
 
 @test "calls fzf when called bare" {
+  mkdir -p "$GHD_LOCATION/$repo"
+  mkdir -p "$GHD_LOCATION/$repo_name"
   run . ./ghd ""
   [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/fzf_called" ]]
   [[ "${#lines[@]}" -eq 1 ]]
@@ -203,6 +205,8 @@ setup() {
 }
 
 @test "ignores fzf if fzf exits abnormally" {
+  mkdir -p "$GHD_LOCATION/$repo"
+  mkdir -p "$GHD_LOCATION/$repo_name"
   fzf() {
     return 130
   }
@@ -213,6 +217,8 @@ setup() {
 }
 
 @test "obeys PAGER for fzf" {
+  mkdir -p "$GHD_LOCATION/$repo"
+  mkdir -p "$GHD_LOCATION/$repo_name"
   PAGER="wat"
   fzf() {
     echo "$@" | tr '\n' ' '
