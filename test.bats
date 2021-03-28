@@ -24,6 +24,14 @@ setup() {
   cd() {
     echo "MOCK: cd $@"
   }
+
+  gh() {
+    if [[ "$@" != "auth status" ]]; then
+      echo 'Github CLI invoked improperly.  Check `gh auth status` first.'
+      exit 1
+    fi
+    return 1
+  }
 }
 
 @test "clones ssh repo name" {
@@ -147,6 +155,10 @@ setup() {
   [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$repo_owner" ]]
   [[ "${#lines[@]}" -eq 1 ]]
   [[ "$status" -eq 0 ]]
+}
+
+@test "lists orgs from gh if auth enabled" {
+  gh
 }
 
 @test "calls fzf for ambiguous repo" {
