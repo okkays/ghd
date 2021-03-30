@@ -4,6 +4,7 @@ ghd_base="$BATS_TMPDIR/ghd_test"
 setup() {
   GHD_LOCATION="$ghd_base/$BATS_TEST_NUMBER"
   GHD_USE_SSH=0
+  logged_out=1
   rm -rf "$GHD_LOCATION"
   repo_name="ghd"
   repo_owner="okkays"
@@ -14,7 +15,8 @@ setup() {
   }
 
   fzf() {
-    echo "fzf_called"
+    stdin="$(cat)"
+    echo "fzf_called with $stdin"
   }
 
   git() {
@@ -26,11 +28,22 @@ setup() {
   }
 
   gh() {
-    if [[ "$@" != "auth status" ]]; then
-      echo 'Github CLI invoked improperly.  Check `gh auth status` first.'
-      exit 1
+    if [[ "$@" == "auth status" ]]; then
+      return $logged_out
     fi
-    return 1
+
+    if [[ $logged_out -eq 1 ]]; then
+      echo 'Github CLI invoked improperly.  Check `gh auth status` first.'
+      return 0
+    fi
+
+    if [[ "$@" == "repo list --limit 10000" ]]; then
+      echo "$repo_owner/gh_$repo_name"
+      return 0
+    fi
+
+    echo "Unexpected gh command: $@"
+    exit 1
   }
 }
 
@@ -158,15 +171,22 @@ setup() {
 }
 
 @test "lists orgs from gh if auth enabled" {
-  gh
+  logged_out=0
+  mkdir -p "$GHD_LOCATION/$repo"
+
+  run . ./ghd ""
+
+  [[ "$output" == *"MOCK: cd $GHD_LOCATION/fzf_called with "*"okkays"*"okkays/gh_ghd"*"okkays/ghd" ]]
+  [[ "${#lines[@]}" -eq 3 ]]
+  [[ "$status" -eq 0 ]]
 }
 
 @test "calls fzf for ambiguous repo" {
   mkdir -p "$GHD_LOCATION/$repo"
   mkdir -p "$GHD_LOCATION/$repo_name"
   run . ./ghd $repo_name
-  [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/fzf_called" ]]
-  [[ "${#lines[@]}" -eq 1 ]]
+  [[ "$output" == *"MOCK: cd $GHD_LOCATION/fzf_called with "*"$GHD_LOCATION/ghd"*"$GHD_LOCATION/okkays/ghd" ]]
+  [[ "${#lines[@]}" -eq 2 ]]
   [[ "$status" -eq 0 ]]
 }
 
@@ -199,8 +219,8 @@ setup() {
   mkdir -p "$GHD_LOCATION/$repo"
   mkdir -p "$GHD_LOCATION/$repo_name"
   run . ./ghd ""
-  [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/fzf_called" ]]
-  [[ "${#lines[@]}" -eq 1 ]]
+  [[ "$output" == *"MOCK: cd $GHD_LOCATION/fzf_called with ghd"*"okkays"*"okkays/ghd" ]]
+  [[ "${#lines[@]}" -eq 3 ]]
   [[ "$status" -eq 0 ]]
 }
 
@@ -211,7 +231,6 @@ setup() {
     return 130
   }
   run . ./ghd ""
-  echo "# $output" >&3
   [[ "${#lines[@]}" -eq 0 ]]
   [[ "$status" -eq 130 ]]
 }

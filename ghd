@@ -50,10 +50,6 @@ function _ghd_run() {
     fi
   }
 
-  function has_cli() {
-    return gh auth status > /dev/null 2>&1
-  }
-
   function search_local() { # name
     name="$1"
 
@@ -72,7 +68,7 @@ function _ghd_run() {
       return 1
     fi
 
-    if ! has_cli; then
+    if ! gh auth status > /dev/null 2>&1; then
       return 2
     fi
 
