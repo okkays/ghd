@@ -1,6 +1,5 @@
 #!/usr/bin/env bats
 ghd_base="$BATS_TMPDIR/ghd_test"
-
 setup() {
   GHD_LOCATION="$ghd_base/$BATS_TEST_NUMBER"
   GHD_USE_SSH=0
@@ -45,6 +44,12 @@ setup() {
     echo "Unexpected gh command: $@"
     exit 1
   }
+  printf "\n\nStart test $BATS_TEST_NUMBER: $BATS_TEST_DESCRIPTION\n\n" >> /tmp/bats
+}
+
+teardown() {
+  printf "\n$output\n" >> /tmp/bats
+  printf "\n\nEnd test $BATS_TEST_NUMBER\n\n" >> /tmp/bats
 }
 
 @test "clones ssh repo name" {
