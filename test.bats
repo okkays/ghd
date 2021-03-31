@@ -71,17 +71,19 @@ teardown() {
   [[ "$status" -eq 0 ]]
 }
 
-@test "clones https when given https" {
+@test "clones ssh given https" {
+  GHD_USE_SSH=1
   run . ./ghd https://github.com/$fake_repo
-  [[ "$output" == *"MOCK: git "*"https://github.com/$fake_repo"* ]]
+  [[ "$output" == *"MOCK: git "*"git@github.com:$fake_repo"* ]]
   [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$fake_repo" ]]
   [[ "${#lines[@]}" -eq 2 ]]
   [[ "$status" -eq 0 ]]
 }
 
-@test "clones git when given git" {
+@test "clones https given git" {
+  GHD_USE_SSH=0
   run . ./ghd git@github.com:$fake_repo
-  [[ "$output" == *"MOCK: git "*"git@github.com:$fake_repo"* ]]
+  [[ "$output" == *"MOCK: git "*"https://github.com/$fake_repo"* ]]
   [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$fake_repo" ]]
   [[ "${#lines[@]}" -eq 2 ]]
   [[ "$status" -eq 0 ]]

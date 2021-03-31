@@ -156,9 +156,8 @@ function _ghd_run() {
     return 1
   }
 
-  function find_target() { # repo_name repo_url
+  function find_target() { # repo_name
     repo_name="$1"
-    repo_url="$2"
 
     if [[ -z "$repo_name" ]]; then
       fzf_ghd '' "$(get_repo_list)"
@@ -181,14 +180,12 @@ function _ghd_run() {
   mkdir -p "$location_root"
 
   repo_name="$(get_repo_name "$repo_url_or_name")"
-  repo_url="$(get_repo_url "$repo_url_or_name")"
-
-  target="$(find_target "$repo_name" "$repo_url")"
+  target="$(find_target "$repo_name")"
   result=$?
-
   if [[ $result -ne 0 ]]; then
     return $result
   fi
+  repo_url="$(get_repo_url "$target")"
 
   maybe_pull "$location_root" "$repo_url" "$target"
   result=$?
