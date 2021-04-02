@@ -79,7 +79,7 @@ ghd
 If you've already checked out some of a user's repos, you can switch to that user's directory:
 
 ```bash
-ghd okkays
+ghd okkays/
 ```
 
 Finally, to switch to the root of all of your cloned repos:
