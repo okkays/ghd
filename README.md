@@ -50,6 +50,18 @@ ghd ghd!
 ghd gh!<Enter>
 ```
 
+To checkout a branch, commit, etc for a repo:
+
+```bash
+ghd okkays/ghd@main
+# or, to pull first:
+ghd ghd@main!
+# or, from a url:
+ghd git@github.com:okkays/ghd@main
+# or, if you're already in a repo, as a shortcut:
+ghd @main
+```
+
 To go to the root of your ghd-cloned repos:
 
 ```bash
@@ -81,6 +93,8 @@ There, you can use directory-based tools like `find`, `ag`, etc to figure out wh
 ![Animated example of using ag with ghd](ghd_ag.gif)
 
 ## Configuration
+
+ghd can work with [Github CLI](https://github.com/cli/cli)!  Install the cli separately, and then run `gh auth login`.  Remote results should start appearing in the ghd lists, and you can type `ghd repo` instead of `your_username/repo` to clone things!
 
 ghd reads the following environment variables:
 
