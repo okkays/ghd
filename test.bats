@@ -144,6 +144,13 @@ teardown() {
   [[ "$status" -eq 0 ]]
 }
 
+@test "goes to branch if @ is used without repo" {
+  run . ./ghd @fake_branch
+  [[ "$output" == *"MOCK: git checkout fake_branch"* ]]
+  [[ "${#lines[@]}" -eq 1 ]]
+  [[ "$status" -eq 0 ]]
+}
+
 @test "goes to cloned repo by repo name" {
   mkdir -p "$GHD_LOCATION/$fake_repo"
   run . ./ghd $fake_repo_name

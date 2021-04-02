@@ -194,6 +194,11 @@ function _ghd_run() {
     branch=$(echo $repo_name | cut -f2 -d@)
     repo_name=$(echo $repo_name | cut -f1 -d@)
   fi
+  if [[ -n "$branch" ]] && [[ -z "$repo_name" ]]; then
+    git checkout "$branch"
+    return $?
+  fi
+
   target="$(find_target "$repo_name")"
   result=$?
   if [[ $result -ne 0 ]]; then
