@@ -89,6 +89,16 @@ teardown() {
   [[ "$status" -eq 0 ]]
 }
 
+@test "clones and switches to branch with @" {
+  GHD_USE_SSH=1
+  run . ./ghd git@github.com:$fake_repo@fake_branch
+  [[ "$output" == *"MOCK: git clone --branch fake_branch -- git@github.com:$fake_repo $GHD_LOCATION/$fake_repo"* ]]
+
+  [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$fake_repo" ]]
+  [[ "${#lines[@]}" -eq 2 ]]
+  [[ "$status" -eq 0 ]]
+}
+
 @test "exits abnormally when git fails" {
   git() {
     return 1
@@ -125,6 +135,15 @@ teardown() {
   [[ "$status" -eq 0 ]]
 }
 
+@test "goes to branch if @ is used" {
+  mkdir -p "$GHD_LOCATION/$fake_repo"
+  run . ./ghd $fake_repo@fake_branch
+  [[ "$output" == *"MOCK: git -C $GHD_LOCATION/$fake_repo checkout fake_branch"* ]]
+  [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$fake_repo" ]]
+  [[ "${#lines[@]}" -eq 2 ]]
+  [[ "$status" -eq 0 ]]
+}
+
 @test "goes to cloned repo by repo name" {
   mkdir -p "$GHD_LOCATION/$fake_repo"
   run . ./ghd $fake_repo_name
@@ -149,6 +168,16 @@ teardown() {
   [[ "$output" == *"MOCK: git -C $GHD_LOCATION/$fake_repo pull --all"* ]]
   [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$fake_repo" ]]
   [[ "${#lines[@]}" -eq 2 ]]
+  [[ "$status" -eq 0 ]]
+}
+
+@test "pulls cloned repo and then switches to branch if repo!@branch is used" {
+  mkdir -p "$GHD_LOCATION/$fake_repo/.git"
+  run . ./ghd $fake_repo@fake_branch!
+  [[ "$output" == *"MOCK: git -C $GHD_LOCATION/$fake_repo pull --all"* ]]
+  [[ "$output" == *"MOCK: git -C $GHD_LOCATION/$fake_repo checkout fake_branch"* ]]
+  [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$fake_repo" ]]
+  [[ "${#lines[@]}" -eq 3 ]]
   [[ "$status" -eq 0 ]]
 }
 

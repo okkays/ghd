@@ -19,13 +19,18 @@ function _ghd_run() {
   GITHUB_PREFIX='^\(\(https:\/\/\)\|\(git@\)\)github\.com[:/]'
   GITHUB_SUFFIX='\.git$'
 
-  function maybe_pull() { # location_root repo_url target
+  function maybe_pull() { # location_root repo_url target branch
     location_root="$1"
     repo_url="$2"
     target="$3"
+    branch="$4"
     directory="$location_root/$target"
 
     if [[ $is_pull_requested -eq 0 ]] && [[ -d "$directory" ]]; then
+      if [[ -n "$branch" ]]; then
+        git -C "$directory" checkout "$branch"
+        return $?
+      fi
       return 0
     fi
 
@@ -38,13 +43,17 @@ function _ghd_run() {
     fi
 
     if [[ ! -d "$directory" ]]; then
-      git clone -- "$repo_url" "$directory"
-      return $? # return the result of the clone.
+      git clone --branch "$branch" -- "$repo_url" "$directory"
+      return $?
     fi
 
     if [[ -d "$directory/.git" ]]; then
       git -C "$directory" pull --all
-      return 0
+
+      if [[ -n "$branch" ]]; then
+        git -C "$directory" checkout "$branch"
+      fi
+      return $?
     fi
 
     return 0
@@ -180,6 +189,11 @@ function _ghd_run() {
   mkdir -p "$location_root"
 
   repo_name="$(get_repo_name "$repo_url_or_name")"
+  branch=""
+  if [[ "$repo_name" == *"@"* ]]; then
+    branch=$(echo $repo_name | cut -f2 -d@)
+    repo_name=$(echo $repo_name | cut -f1 -d@)
+  fi
   target="$(find_target "$repo_name")"
   result=$?
   if [[ $result -ne 0 ]]; then
@@ -187,7 +201,7 @@ function _ghd_run() {
   fi
   repo_url="$(get_repo_url "$target")"
 
-  maybe_pull "$location_root" "$repo_url" "$target"
+  maybe_pull "$location_root" "$repo_url" "$target" "$branch"
   result=$?
   if [[ $result -ne 0 ]]; then
     return $result
