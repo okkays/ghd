@@ -4,7 +4,7 @@ ghd_base="$BATS_TMPDIR/ghd_test"
 setup() {
   GHD_LOCATION="$ghd_base/$BATS_TEST_NUMBER"
   GHD_USE_SSH=0
-  logged_out=1
+  gh_logged_out=1
   rm -rf "$GHD_LOCATION"
   fake_repo_name="ghd"
   fake_repo_owner="okkays"
@@ -29,16 +29,17 @@ setup() {
 
   gh() {
     if [[ "$@" == "auth status" ]]; then
-      return $logged_out
+      return $gh_logged_out
     fi
 
-    if [[ $logged_out -eq 1 ]]; then
+    if [[ $gh_logged_out -eq 1 ]]; then
       echo 'Github CLI invoked improperly.  Check `gh auth status` first.'
       return 0
     fi
 
     if [[ "$@" == "repo list --limit 10000" ]]; then
       echo "$fake_repo_owner/gh_$fake_repo_name"
+      echo "$fake_repo_owner/gh_2_$fake_repo_name"
       return 0
     fi
 
@@ -56,7 +57,7 @@ teardown() {
 @test "clones ssh repo name" {
   GHD_USE_SSH=1
   run . ./ghd $fake_repo
-  [[ "$output" == *"MOCK: git "*"git@github.com:$fake_repo "* ]]
+  [[ "$output" == *"MOCK: git clone"*"git@github.com:$fake_repo "* ]]
   [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$fake_repo" ]]
   [[ "${#lines[@]}" -eq 2 ]]
   [[ "$status" -eq 0 ]]
@@ -65,7 +66,7 @@ teardown() {
 @test "clones https repo name" {
   GHD_USE_SSH=0
   run . ./ghd $fake_repo
-  [[ "$output" == *"MOCK: git "*"https://github.com/$fake_repo"* ]]
+  [[ "$output" == *"MOCK: git clone"*"https://github.com/$fake_repo"* ]]
   [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$fake_repo" ]]
   [[ "${#lines[@]}" -eq 2 ]]
   [[ "$status" -eq 0 ]]
@@ -74,7 +75,7 @@ teardown() {
 @test "clones ssh given https" {
   GHD_USE_SSH=1
   run . ./ghd https://github.com/$fake_repo
-  [[ "$output" == *"MOCK: git "*"git@github.com:$fake_repo"* ]]
+  [[ "$output" == *"MOCK: git clone"*"git@github.com:$fake_repo"* ]]
   [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$fake_repo" ]]
   [[ "${#lines[@]}" -eq 2 ]]
   [[ "$status" -eq 0 ]]
@@ -83,7 +84,7 @@ teardown() {
 @test "clones https given git" {
   GHD_USE_SSH=0
   run . ./ghd git@github.com:$fake_repo
-  [[ "$output" == *"MOCK: git "*"https://github.com/$fake_repo"* ]]
+  [[ "$output" == *"MOCK: git clone"*"https://github.com/$fake_repo"* ]]
   [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$fake_repo" ]]
   [[ "${#lines[@]}" -eq 2 ]]
   [[ "$status" -eq 0 ]]
@@ -214,8 +215,21 @@ teardown() {
   [[ "$status" -eq 0 ]]
 }
 
+@test "clones all repos for org by org name if ! used and gh available" {
+  gh_logged_out=0
+  fake_repo_1="$fake_repo_owner/gh_$fake_repo_name"
+  fake_repo_2="$fake_repo_owner/gh_2_$fake_repo_name"
+  run . ./ghd $fake_repo_owner
+  [[ "$output" == *"MOCK: git clone "*"git@github.com:$fake_repo_1"* ]]
+  [[ "$output" == *"MOCK: git clone "*"git@github.com:$fake_repo_2"* ]]
+  [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$fake_repo_owner" ]]
+  [[ "${#lines[@]}" -eq 3 ]]
+  [[ "$status" -eq 0 ]]
+}
+
+
 @test "lists orgs from gh if auth enabled" {
-  logged_out=0
+  gh_logged_out=0
   mkdir -p "$GHD_LOCATION/$fake_repo"
 
   run . ./ghd ""
