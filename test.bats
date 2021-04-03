@@ -317,3 +317,12 @@ teardown() {
   [[ "${#lines[@]}" -eq 1 ]]
   [[ "$status" -eq 0 ]]
 }
+
+@test "prints dir instead of cding given ?" {
+  mkdir -p "$GHD_LOCATION/$fake_repo/.git"
+  run . ./ghd /?
+  [[ "$output" != *"MOCK: cd "*"$GHD_LOCATION/" ]]
+  [[ "$output" == *"$GHD_LOCATION/"* ]]
+  [[ "${#lines[@]}" -eq 1 ]]
+  [[ "$status" -eq 0 ]]
+}
