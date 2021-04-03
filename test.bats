@@ -9,6 +9,8 @@ setup() {
   fake_repo_name="ghd"
   fake_repo_owner="okkays"
   fake_repo="$fake_repo_owner/$fake_repo_name"
+  fake_gh_repo_1="$fake_repo_owner/gh_$fake_repo_name"
+  fake_gh_repo_2="$fake_repo_owner/gh_2_$fake_repo_name"
 
   __fzfcmd() {
     echo 'fzf'
@@ -93,7 +95,7 @@ teardown() {
 @test "clones and switches to branch with @" {
   GHD_USE_SSH=1
   run . ./ghd git@github.com:$fake_repo@fake_branch
-  [[ "$output" == *"MOCK: git clone --branch fake_branch -- git@github.com:$fake_repo $GHD_LOCATION/$fake_repo"* ]]
+  [[ "$output" == *"MOCK: git clone --branch \"fake_branch\" -- git@github.com:$fake_repo $GHD_LOCATION/$fake_repo"* ]]
 
   [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$fake_repo" ]]
   [[ "${#lines[@]}" -eq 2 ]]
@@ -218,14 +220,11 @@ teardown() {
 @test "clones all repos for org by org name if * used and gh available" {
   gh_logged_out=0
   GHD_USE_SSH=1
-  fake_repo_1="$fake_repo_owner/gh_$fake_repo_name"
-  fake_repo_2="$fake_repo_owner/gh_2_$fake_repo_name"
-  mkdir -p "$GHD_LOCATION/$fake_repo_2"
+  mkdir -p "$GHD_LOCATION/$fake_gh_repo_2"
   run . ./ghd $fake_repo_owner'*'
-  [[ "$output" == *"MOCK: git clone "*"git@github.com:$fake_repo_1"* ]]
-  [[ "$output" == *"Not cloning $fake_repo_2: directory exists"* ]]
+  [[ "$output" == *"MOCK: git clone "*"git@github.com:$fake_gh_repo_1"* ]]
   [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$fake_repo_owner" ]]
-  [[ "${#lines[@]}" -eq 3 ]]
+  [[ "${#lines[@]}" -eq 2 ]]
   [[ "$status" -eq 0 ]]
 }
 
@@ -233,11 +232,14 @@ teardown() {
 @test "lists orgs from gh if auth enabled" {
   gh_logged_out=0
   mkdir -p "$GHD_LOCATION/$fake_repo"
+  mkdir -p "$GHD_LOCATION/$fake_gh_repo_1"
+  mkdir -p "$GHD_LOCATION/$fake_gh_repo_2"
 
   run . ./ghd ""
 
+  [[ "$output" == *"MOCK: git clone"*"github.com/fzf_called "* ]]
   [[ "$output" == *"MOCK: cd $GHD_LOCATION/fzf_called with "*"okkays"*"okkays_gh_ghd"*"okkays_ghd" ]]
-  [[ "${#lines[@]}" -eq 1 ]]
+  [[ "${#lines[@]}" -eq 2 ]]
   [[ "$status" -eq 0 ]]
 }
 
@@ -245,8 +247,9 @@ teardown() {
   mkdir -p "$GHD_LOCATION/$fake_repo"
   mkdir -p "$GHD_LOCATION/$fake_repo_name/.git"
   run . ./ghd $fake_repo_name
+  [[ "$output" == *"MOCK: git clone"*"github.com/fzf_called "* ]]
   [[ "$output" == *"MOCK: cd $GHD_LOCATION/fzf_called with "*"ghd"*"okkays_ghd" ]]
-  [[ "${#lines[@]}" -eq 1 ]]
+  [[ "${#lines[@]}" -eq 2 ]]
   [[ "$status" -eq 0 ]]
 }
 
@@ -279,8 +282,9 @@ teardown() {
   mkdir -p "$GHD_LOCATION/$fake_repo"
   mkdir -p "$GHD_LOCATION/$fake_repo_name"
   run . ./ghd ""
+  [[ "$output" == *"MOCK: git clone"*"github.com/fzf_called "* ]]
   [[ "$output" == *"MOCK: cd $GHD_LOCATION/fzf_called with ghd"*"okkays"*"okkays_ghd" ]]
-  [[ "${#lines[@]}" -eq 1 ]]
+  [[ "${#lines[@]}" -eq 2 ]]
   [[ "$status" -eq 0 ]]
 }
 

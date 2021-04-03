@@ -7,35 +7,13 @@
 # Clones via https by default (set GHD_USE_SSH=1 for ssh).
 
 function _ghd_run() {
-  location_root="${GHD_LOCATION:-/tmp/ghd}"
-  use_ssh="${GHD_USE_SSH:-0}"
-  pager="${PAGER:-cat}"
-  repo_url_or_name="$1"
-
-  is_clone_all_requested=0
-  is_pull_requested=0
-  while [[ $repo_url_or_name == *'*' ]] || [[ $repo_url_or_name == *'!' ]]
-  do
-    if [[ $repo_url_or_name == *'*' ]]; then
-      repo_url_or_name="${repo_url_or_name::-1}"
-      is_clone_all_requested=1
-    fi
-
-    if [[ $repo_url_or_name == *'!' ]]; then
-      repo_url_or_name="${repo_url_or_name::-1}"
-      is_pull_requested=1
-    fi
-  done
-
-  GITHUB_PREFIX='^\(\(https:\/\/\)\|\(git@\)\)github\.com[:/]'
-  GITHUB_SUFFIX='\.git$'
-
   function maybe_pull() { # location_root repo_url target branch
-    location_root="$1"
-    repo_url="$2"
-    target="$3"
-    branch="$4"
-    directory="$location_root/$target"
+    local location_root="$1"
+    local repo_url="$2"
+    local target="$3"
+    local branch="$4"
+    local directory="$location_root/$target"
+    local branch_param
 
     if [[ $is_pull_requested -eq 0 ]] && [[ -d "$directory" ]]; then
       if [[ -n "$branch" ]]; then
@@ -49,12 +27,17 @@ function _ghd_run() {
       return 1
     fi
 
-    if [[ "$target" == '/' ]] || [[ "$target" != *"/"* ]]; then
+    if [[ -z "$target" ]] || [[ "$target" == '/' ]]; then
       return 0
     fi
 
     if [[ ! -d "$directory" ]]; then
-      git clone --branch "$branch" -- "$repo_url" "$directory"
+      if [[ -n "$branch" ]]; then
+        branch_param="--branch \"$branch\""
+      else
+        branch_param=""
+      fi
+      git clone $branch_param -- "$repo_url" "$directory"
       return $?
     fi
 
@@ -70,14 +53,13 @@ function _ghd_run() {
     return 0
   }
 
-  function maybe_clone_all() { # location_root repo_owner branch
-    location_root="$1"
-    repo_owner="$2"
-    branch="$3"
-
-    if [[ $is_clone_all_requested -eq 0 ]]; then
-      return 0
-    fi
+  function maybe_pull_all() { # location_root repo_owner branch
+    local location_root="$1"
+    local repo_owner="$2"
+    local branch="$3"
+    local repo_single_names
+    local branch_param
+    local directory
 
     if ! gh auth status > /dev/null 2>&1; then
       return 1
@@ -94,19 +76,19 @@ function _ghd_run() {
 
     for repo_single_name in ${repo_single_names}; do
       directory="$location_root/$repo_owner/$repo_single_name"
-      if [[ -d "$directory" ]]; then
-        echo "Not cloning $repo_owner/$repo_single_name: directory exists"
-        continue
-      fi
-
-      git clone $branch_param -- "$repo_url/$repo_single_name" "$directory"
+      maybe_pull \
+        "$location_root" \
+        "$repo_url/$repo_single_name" \
+        "$repo_owner/$repo_single_name" \
+        "$branch"
     done
 
     return $result
   }
 
   function get_repo_name() { # repo_url_or_name
-    repo_url_or_name="$1"
+    local repo_url_or_name="$1"
+    local name
     name="$(echo "$repo_url_or_name" | \
       sed -e "s/$GITHUB_PREFIX//g" | \
       sed -e "s/$GITHUB_SUFFIX//g")"
@@ -114,7 +96,7 @@ function _ghd_run() {
   }
 
   function get_repo_url() { # repo_url_or_name
-    repo_url_or_name="$1"
+    local repo_url_or_name="$1"
     if [[ $repo_url_or_name =~ ^$GITHUB_PREFIX ]]; then
       echo "$repo_url_or_name"
     elif [[ $use_ssh -eq 1 ]]; then
@@ -125,13 +107,14 @@ function _ghd_run() {
   }
 
   function search_local() { # name
-    name="$1"
+    local name="$1"
 
     find $location_root -maxdepth 2 -name "*$name*" -printf "%P\n"
   }
 
   function search_gh() { # name
-    name="$1"
+    local name="$1"
+    local repos
 
     if ! command -v gh > /dev/null 2>&1; then
       return 1
@@ -151,7 +134,7 @@ function _ghd_run() {
   }
 
   function get_repo_list() { # name
-    name="$1"
+    local name="$1"
     {
       search_local "$name"
       search_gh "$name"
@@ -161,8 +144,10 @@ function _ghd_run() {
   }
 
   function fzf_ghd() { # query matches -> choice
-    query="$1"
-    matches="$2"
+    local query="$1"
+    local matches="$2"
+    local dest
+    local fzf_status
 
     if [[ -z "$matches" ]]; then
       return 1
@@ -186,7 +171,9 @@ function _ghd_run() {
   }
 
   function handle_single_name() { # name
-    single_name="$1"
+    local single_name="$1"
+    local matches
+    local num_matches
     matches="$(get_repo_list "$single_name")"
     if [[ -z $matches ]]; then
       if fzf_ghd "$single_name" "$matches"; then
@@ -212,7 +199,7 @@ function _ghd_run() {
   }
 
   function find_target() { # repo_name
-    repo_name="$1"
+    local repo_name="$1"
 
     if [[ -z "$repo_name" ]]; then
       fzf_ghd '' "$(get_repo_list)"
@@ -232,6 +219,35 @@ function _ghd_run() {
     return $?
   }
 
+  local location_root="${GHD_LOCATION:-/tmp/ghd}"
+  local use_ssh="${GHD_USE_SSH:-0}"
+  local pager="${PAGER:-cat}"
+  local repo_url_or_name="$1"
+
+  local is_apply_all=0
+  local is_pull_requested=0
+  while [[ $repo_url_or_name == *'*' ]] || [[ $repo_url_or_name == *'!' ]]
+  do
+    if [[ $repo_url_or_name == *'*' ]]; then
+      repo_url_or_name="${repo_url_or_name::-1}"
+      is_apply_all=1
+    fi
+
+    if [[ $repo_url_or_name == *'!' ]]; then
+      repo_url_or_name="${repo_url_or_name::-1}"
+      is_pull_requested=1
+    fi
+  done
+
+  local GITHUB_PREFIX='^\(\(https:\/\/\)\|\(git@\)\)github\.com[:/]'
+  local GITHUB_SUFFIX='\.git$'
+
+  local repo_name
+  local branch
+  local target
+  local result
+  local repo_url
+
   mkdir -p "$location_root"
 
   repo_name="$(get_repo_name "$repo_url_or_name")"
@@ -246,29 +262,29 @@ function _ghd_run() {
     return $?
   fi
 
-  if [[ $is_clone_all_requested -eq 0 ]]; then
+  if [[ $is_apply_all -eq 0 ]]; then
     target="$(find_target "$repo_name")"
+    result=$?
+    if [[ $result -ne 0 ]]; then
+      return $result
+    fi
   else
     target="$repo_name"
   fi
 
-  result=$?
-  if [[ $result -ne 0 ]]; then
-    return $result
-  fi
   repo_url="$(get_repo_url "$target")"
 
-  maybe_clone_all "$location_root" "$target" "$branch"
+  if [[ $is_apply_all -eq 0 ]]; then
+    maybe_pull "$location_root" "$repo_url" "$target" "$branch"
+  else
+    maybe_pull_all "$location_root" "$target" "$branch"
+  fi
+
   result=$?
   if [[ $result -ne 0 ]]; then
     return $result
   fi
 
-  maybe_pull "$location_root" "$repo_url" "$target" "$branch"
-  result=$?
-  if [[ $result -ne 0 ]]; then
-    return $result
-  fi
   cd "$location_root/$target"
   return 0
 }
