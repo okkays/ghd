@@ -14,10 +14,17 @@ function _ghd_run() {
     local branch="$4"
     local directory="$location_root/$target"
     local branch_param
+    local new_branch_param
+
+    if [[ $is_question -eq 1 ]]; then
+      new_branch_param="-b"
+    else
+      new_branch_param=""
+    fi
 
     if [[ $is_pull_requested -eq 0 ]] && [[ -d "$directory" ]]; then
       if [[ -n "$branch" ]]; then
-        git -C "$directory" checkout "$branch"
+        git -C "$directory" checkout $new_branch_param "$branch"
         return $?
       fi
       return 0
@@ -45,7 +52,7 @@ function _ghd_run() {
       git -C "$directory" pull --all
 
       if [[ -n "$branch" ]]; then
-        git -C "$directory" checkout "$branch"
+        git -C "$directory" checkout $new_branch_param "$branch"
       fi
       return $?
     fi
@@ -266,7 +273,13 @@ function _ghd_run() {
   fi
 
   if [[ -n "$branch" ]] && [[ -z "$repo_name" ]]; then
-    git checkout "$branch"
+    if [[ $is_question -eq 1 ]]; then
+      new_branch_param="-b"
+    else
+      new_branch_param=""
+    fi
+
+    git checkout $new_branch_param "$branch"
     return $?
   fi
 
@@ -293,7 +306,7 @@ function _ghd_run() {
     return $result
   fi
 
-  if [[ $is_question -eq 1 ]]; then
+  if [[ -z "$branch" ]] && [[ $is_question -eq 1 ]]; then
     echo "$location_root/$target"
     return 0
   fi
