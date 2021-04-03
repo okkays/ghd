@@ -106,6 +106,12 @@ There, you can use directory-based tools like `find`, `ag`, etc to figure out wh
 
 ![Animated example of using ag with ghd](ghd_ag.gif)
 
+If you just want to use the location of the command (rather than switching directories) you can add a `?`, for example:
+
+```bash
+ls `ghd okkays/ghd?`
+```
+
 ## Configuration
 
 ### Github CLI Integration

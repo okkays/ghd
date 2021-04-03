@@ -226,7 +226,10 @@ function _ghd_run() {
 
   local is_apply_all=0
   local is_pull_requested=0
-  while [[ $repo_url_or_name == *'*' ]] || [[ $repo_url_or_name == *'!' ]]
+  local is_question=0
+  while [[ $repo_url_or_name == *'*' ]] || \
+    [[ $repo_url_or_name == *'!' ]] || \
+    [[ $repo_url_or_name == *'?' ]]
   do
     if [[ $repo_url_or_name == *'*' ]]; then
       repo_url_or_name="${repo_url_or_name::-1}"
@@ -236,6 +239,11 @@ function _ghd_run() {
     if [[ $repo_url_or_name == *'!' ]]; then
       repo_url_or_name="${repo_url_or_name::-1}"
       is_pull_requested=1
+    fi
+
+    if [[ $repo_url_or_name == *'?' ]]; then
+      repo_url_or_name="${repo_url_or_name::-1}"
+      is_question=1
     fi
   done
 
@@ -283,6 +291,11 @@ function _ghd_run() {
   result=$?
   if [[ $result -ne 0 ]]; then
     return $result
+  fi
+
+  if [[ $is_question -eq 1 ]]; then
+    echo "$location_root/$target"
+    return 0
   fi
 
   cd "$location_root/$target"
