@@ -13,13 +13,13 @@ function _ghd_run() {
   repo_url_or_name="$1"
 
   is_clone_all_requested=0
-  if [[ $repo_url_or_name == *"!!" ]]; then
+  if [[ $repo_url_or_name == *'*' ]]; then
     repo_url_or_name="${repo_url_or_name::-2}"
     is_clone_all_requested=1
   fi
 
   is_pull_requested=0
-  if [[ $repo_url_or_name == *"!" ]]; then
+  if [[ $repo_url_or_name == *'!' ]]; then
     repo_url_or_name="${repo_url_or_name::-1}"
     is_pull_requested=1
   fi

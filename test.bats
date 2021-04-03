@@ -215,12 +215,12 @@ teardown() {
   [[ "$status" -eq 0 ]]
 }
 
-@test "clones all repos for org by org name if ! used and gh available" {
+@test "clones all repos for org by org name if * used and gh available" {
   gh_logged_out=0
   GHD_USE_SSH=1
   fake_repo_1="$fake_repo_owner/gh_$fake_repo_name"
   fake_repo_2="$fake_repo_owner/gh_2_$fake_repo_name"
-  run . ./ghd $fake_repo_owner!!
+  run . ./ghd $fake_repo_owner'\*'
   [[ "$output" == *"MOCK: git clone "*"git@github.com:$fake_repo_1"* ]]
   [[ "$output" == *"MOCK: git clone "*"git@github.com:$fake_repo_2"* ]]
   [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$fake_repo_owner" ]]
