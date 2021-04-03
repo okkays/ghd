@@ -11,11 +11,19 @@ function _ghd_run() {
   use_ssh="${GHD_USE_SSH:-0}"
   pager="${PAGER:-cat}"
   repo_url_or_name="$1"
+
+  is_clone_all_requested=0
+  if [[ $repo_url_or_name == *"!!" ]]; then
+    repo_url_or_name="${repo_url_or_name::-2}"
+    is_clone_all_requested=1
+  fi
+
   is_pull_requested=0
   if [[ $repo_url_or_name == *"!" ]]; then
     repo_url_or_name="${repo_url_or_name::-1}"
     is_pull_requested=1
   fi
+
   GITHUB_PREFIX='^\(\(https:\/\/\)\|\(git@\)\)github\.com[:/]'
   GITHUB_SUFFIX='\.git$'
 
@@ -57,6 +65,36 @@ function _ghd_run() {
     fi
 
     return 0
+  }
+
+  function maybe_clone_all() { # location_root repo_owner branch
+    location_root="$1"
+    repo_owner="$2"
+    branch="$3"
+
+    if [[ $is_clone_all_requested -eq 0 ]]; then
+      return 0
+    fi
+
+    if ! gh auth status > /dev/null 2>&1; then
+      return 1
+    fi
+
+    repo_single_names="$(gh repo list "$repo_owner" --limit 10000 \
+      | cut -f1 | cut -d/ -f2)"
+
+    if [[ -n "$branch" ]]; then
+      branch_param="--branch \"$branch\""
+    else
+      branch_param=""
+    fi
+
+    for repo_single_name in ${repo_single_names}; do
+      directory="$location_root/$repo_owner/$repo_single_name"
+      git clone $branch_param -- "$repo_url/$repo_single_name" "$directory"
+    done
+
+    return $result
   }
 
   function get_repo_name() { # repo_url_or_name
@@ -194,17 +232,29 @@ function _ghd_run() {
     branch=$(echo $repo_name | cut -f2 -d@)
     repo_name=$(echo $repo_name | cut -f1 -d@)
   fi
+
   if [[ -n "$branch" ]] && [[ -z "$repo_name" ]]; then
     git checkout "$branch"
     return $?
   fi
 
-  target="$(find_target "$repo_name")"
+  if [[ $is_clone_all_requested -eq 0 ]]; then
+    target="$(find_target "$repo_name")"
+  else
+    target="$repo_name"
+  fi
+
   result=$?
   if [[ $result -ne 0 ]]; then
     return $result
   fi
   repo_url="$(get_repo_url "$target")"
+
+  maybe_clone_all "$location_root" "$target" "$branch"
+  result=$?
+  if [[ $result -ne 0 ]]; then
+    return $result
+  fi
 
   maybe_pull "$location_root" "$repo_url" "$target" "$branch"
   result=$?
