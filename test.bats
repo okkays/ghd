@@ -220,9 +220,10 @@ teardown() {
   GHD_USE_SSH=1
   fake_repo_1="$fake_repo_owner/gh_$fake_repo_name"
   fake_repo_2="$fake_repo_owner/gh_2_$fake_repo_name"
-  run . ./ghd $fake_repo_owner'\*'
+  mkdir -p "$GHD_LOCATION/$fake_repo_2"
+  run . ./ghd $fake_repo_owner'*'
   [[ "$output" == *"MOCK: git clone "*"git@github.com:$fake_repo_1"* ]]
-  [[ "$output" == *"MOCK: git clone "*"git@github.com:$fake_repo_2"* ]]
+  [[ "$output" == *"Not cloning $fake_repo_2: directory exists"* ]]
   [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$fake_repo_owner" ]]
   [[ "${#lines[@]}" -eq 3 ]]
   [[ "$status" -eq 0 ]]
