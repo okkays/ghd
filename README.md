@@ -82,6 +82,20 @@ If you've already checked out some of a user's repos, you can switch to that use
 ghd okkays/
 ```
 
+You can also pull/clone all of a user/organization's repositories using `*`:
+
+(After installing the [Github CLI](https://github.com/cli/cli) and running `gh auth login`)
+
+```bash
+ghd okkays*
+```
+
+or
+
+```bash
+ghd okkays*!
+```
+
 Finally, to switch to the root of all of your cloned repos:
 
 ```bash
