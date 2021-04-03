@@ -147,12 +147,29 @@ teardown() {
   [[ "$status" -eq 0 ]]
 }
 
+@test "goes to new branch if @b? is used" {
+  mkdir -p "$GHD_LOCATION/$fake_repo"
+  run . ./ghd $fake_repo@fake_branch?
+  [[ "$output" == *"MOCK: git -C $GHD_LOCATION/$fake_repo checkout -b fake_branch"* ]]
+  [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$fake_repo" ]]
+  [[ "${#lines[@]}" -eq 2 ]]
+  [[ "$status" -eq 0 ]]
+}
+
 @test "goes to branch if @ is used without repo" {
   run . ./ghd @fake_branch
   [[ "$output" == *"MOCK: git checkout fake_branch"* ]]
   [[ "${#lines[@]}" -eq 1 ]]
   [[ "$status" -eq 0 ]]
 }
+
+@test "goes to new branch if @b? is used without repo" {
+  run . ./ghd @fake_branch?
+  [[ "$output" == *"MOCK: git checkout -b fake_branch"* ]]
+  [[ "${#lines[@]}" -eq 1 ]]
+  [[ "$status" -eq 0 ]]
+}
+
 
 @test "goes to cloned repo by repo name" {
   mkdir -p "$GHD_LOCATION/$fake_repo"
@@ -181,7 +198,7 @@ teardown() {
   [[ "$status" -eq 0 ]]
 }
 
-@test "pulls cloned repo and then switches to branch if repo!@branch is used" {
+@test "pulls cloned repo and then switches to branch if repo@branch! is used" {
   mkdir -p "$GHD_LOCATION/$fake_repo/.git"
   run . ./ghd $fake_repo@fake_branch!
   [[ "$output" == *"MOCK: git -C $GHD_LOCATION/$fake_repo pull --all"* ]]

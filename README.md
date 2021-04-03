@@ -62,6 +62,12 @@ ghd git@github.com:okkays/ghd@main
 ghd @main
 ```
 
+You can also ask `ghd` to go to a new branch using a `?`:
+
+```bash
+ghd @main?
+```
+
 To go to the root of your ghd-cloned repos:
 
 ```bash
