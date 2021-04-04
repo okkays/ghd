@@ -9,6 +9,7 @@ The idea behind this tool is to give an easy to access, centralized location for
 ## Dependencies
 
 - For `ghd` and `ghd <ambiguous term>`, you'll want [fzf](https://github.com/junegunn/fzf) in your `PATH`.
+- To get repo lists from github, you'll want the [Github CLI](https://github.com/cli/cli).  Make sure to run `gh auth login` to set it up.
 
 If you want to help with development, grab:
 
