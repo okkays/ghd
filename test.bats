@@ -39,7 +39,13 @@ setup() {
       return 0
     fi
 
-    if [[ "$@" == "repo list "*"--limit 10000" ]]; then
+    if [[ "$@" == "repo list org"* ]]; then
+      echo "org/gh_repo_1"
+      echo "org/gh_repo_2"
+      return 0
+    fi
+
+    if [[ "$@" == "repo list "* ]]; then
       echo "$fake_repo_owner/gh_$fake_repo_name"
       echo "$fake_repo_owner/gh_2_$fake_repo_name"
       return 0
@@ -245,17 +251,25 @@ teardown() {
   [[ "$status" -eq 0 ]]
 }
 
-
-@test "lists orgs from gh if auth enabled" {
+@test "lists repos from gh for current user if auth enabled" {
   gh_logged_out=0
-  mkdir -p "$GHD_LOCATION/$fake_repo"
-  mkdir -p "$GHD_LOCATION/$fake_gh_repo_1"
-  mkdir -p "$GHD_LOCATION/$fake_gh_repo_2"
 
-  run . ./ghd ""
+  run . ./ghd gh_2_ghd
+
+  [[ "$output" == *"MOCK: git clone"*"github.com/$fake_repo_owner/gh_2_ghd "* ]]
+  [[ "$output" == *"MOCK: cd $GHD_LOCATION/$fake_repo_owner/gh_2_ghd" ]]
+  [[ "${#lines[@]}" -eq 2 ]]
+  [[ "$status" -eq 0 ]]
+}
+
+@test "lists repos from gh for an org if auth enabled and + used" {
+  gh_logged_out=0
+  mkdir -p "$GHD_LOCATION/org/gh_repo_1"
+
+  run . ./ghd org+
 
   [[ "$output" == *"MOCK: git clone"*"github.com/fzf_called "* ]]
-  [[ "$output" == *"MOCK: cd $GHD_LOCATION/fzf_called with "*"okkays"*"okkays_gh_ghd"*"okkays_ghd" ]]
+  [[ "$output" == *"MOCK: cd $GHD_LOCATION/fzf_called with "*"org"*"org_gh_repo_1"*"org_gh_repo_2" ]]
   [[ "${#lines[@]}" -eq 2 ]]
   [[ "$status" -eq 0 ]]
 }

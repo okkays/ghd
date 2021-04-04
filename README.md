@@ -29,7 +29,7 @@ to your bashrc. (Sourcing the script allows it to change directory.)
 
 ```bash
 ghd <repo_name or repo url (with https://github.com or git@github.com:)>
-ghd <already cloned user, org, or repo name>
+ghd <already cloned user, org, or repo name>?!+*
 ghd /
 ghd
 ```
@@ -88,9 +88,15 @@ If you've already checked out some of a user's repos, you can switch to that use
 ghd okkays/
 ```
 
-You can also pull/clone all of a user/organization's repositories using `*`:
-
 (After installing the [Github CLI](https://github.com/cli/cli) and running `gh auth login`)
+
+You can list a user/organization's repositories using `+`:
+
+```bash
+ghd okkays+
+```
+
+Or, you can just pull/clone them all using `*`:
 
 ```bash
 ghd okkays*
