@@ -286,6 +286,11 @@ function _ghd_run() {
     fi
 
     git checkout $new_branch_param "$branch"
+
+    if [[ $is_pull_requested -eq 1 ]]; then
+      git pull
+    fi
+
     return $?
   fi
 

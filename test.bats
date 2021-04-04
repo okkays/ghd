@@ -153,6 +153,15 @@ teardown() {
   [[ "$status" -eq 0 ]]
 }
 
+@test "goes to and pulls branch if bare @ is used" {
+  mkdir -p "$GHD_LOCATION/$fake_repo"
+  run . ./ghd @fake_branch!
+  [[ "$output" == *"MOCK: git checkout fake_branch"* ]]
+  [[ "$output" == *"MOCK: git pull" ]]
+  [[ "${#lines[@]}" -eq 2 ]]
+  [[ "$status" -eq 0 ]]
+}
+
 @test "goes to new branch if @b? is used" {
   mkdir -p "$GHD_LOCATION/$fake_repo"
   run . ./ghd $fake_repo@fake_branch?
