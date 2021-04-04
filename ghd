@@ -164,10 +164,17 @@ function _ghd_run() {
       return 2
     fi
 
+    readme_glob='[Rr][Ee][Aa][Dd][Mm][Ee].*'
     dest="$(echo "$matches" | \
       $(__fzfcmd) --query="$query" --preview="
         printf 'https://www.github.com/{}\n\n' &&
-        $pager '$location_root/{}/README.md'" \
+        ( \
+          ( \
+            ls $location_root/{}/$readme_glob > /dev/null 2>&1 && \
+            $pager <(cat $location_root/{}/$readme_glob) \
+          ) || \
+          $pager <(gh repo view {}) \
+        )" \
     )"
     fzf_status="$?"
     if [[ "$fzf_status" -ne 0 ]]; then

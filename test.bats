@@ -347,7 +347,7 @@ teardown() {
     echo "$@" | tr '\n' ' '
   }
   run . ./ghd ""
-  [[ "$output" == *"mockPager '$GHD_LOCATION/{}/README.md'"* ]]
+  [[ "$output" == *"mockPager"* ]]
   [[ "$status" -eq 0 ]]
 }
 
