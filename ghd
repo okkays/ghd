@@ -13,13 +13,11 @@ function _ghd_run() {
     local target="$3"
     local branch="$4"
     local directory="$location_root/$target"
-    local branch_param
-    local new_branch_param
+    local branch_param=""
+    local new_branch_param=""
 
     if [[ $is_question -eq 1 ]]; then
       new_branch_param="-b"
-    else
-      new_branch_param=""
     fi
 
     if [[ $is_pull_requested -eq 0 ]] && [[ -d "$directory" ]]; then
@@ -41,8 +39,6 @@ function _ghd_run() {
     if [[ ! -d "$directory" ]]; then
       if [[ -n "$branch" ]]; then
         branch_param="--branch \"$branch\""
-      else
-        branch_param=""
       fi
       git clone $branch_param -- "$repo_url" "$directory"
       return $?
@@ -65,7 +61,7 @@ function _ghd_run() {
     local repo_owner="$2"
     local branch="$3"
     local repo_single_names
-    local branch_param
+    local branch_param=""
     local directory
 
     if ! gh auth status > /dev/null 2>&1; then
@@ -77,8 +73,6 @@ function _ghd_run() {
 
     if [[ -n "$branch" ]]; then
       branch_param="--branch \"$branch\""
-    else
-      branch_param=""
     fi
 
     for repo_single_name in ${repo_single_names}; do
@@ -122,6 +116,11 @@ function _ghd_run() {
   function search_gh() { # name
     local name="$1"
     local repos
+    local name_param=""
+    local grep_pipe=""
+    if [[ $is_plus -eq 1 ]]; then
+      name_param="$name"
+    fi
 
     if ! command -v gh > /dev/null 2>&1; then
       return 1
@@ -131,10 +130,11 @@ function _ghd_run() {
       return 2
     fi
 
-    repos="$(gh repo list --limit 10000 | cut -f1)"
+    repos="$(gh repo list "$name_param" --limit 10000 | cut -f1)"
 
-    if [[ -z "$name" ]]; then
+    if [[ $is_plus -eq 1 ]]; then
       echo "$repos"
+      return 0
     fi
 
     echo "$repos" | grep "$name"
@@ -234,9 +234,11 @@ function _ghd_run() {
   local is_apply_all=0
   local is_pull_requested=0
   local is_question=0
+  local is_plus=0
   while [[ $repo_url_or_name == *'*' ]] || \
     [[ $repo_url_or_name == *'!' ]] || \
-    [[ $repo_url_or_name == *'?' ]]
+    [[ $repo_url_or_name == *'?' ]] || \
+    [[ $repo_url_or_name == *'+' ]]
   do
     if [[ $repo_url_or_name == *'*' ]]; then
       repo_url_or_name="${repo_url_or_name::-1}"
@@ -252,6 +254,11 @@ function _ghd_run() {
       repo_url_or_name="${repo_url_or_name::-1}"
       is_question=1
     fi
+
+    if [[ $repo_url_or_name == *'+' ]]; then
+      repo_url_or_name="${repo_url_or_name::-1}"
+      is_plus=1
+    fi
   done
 
   local GITHUB_PREFIX='^\(\(https:\/\/\)\|\(git@\)\)github\.com[:/]'
@@ -262,6 +269,7 @@ function _ghd_run() {
   local target
   local result
   local repo_url
+  local new_branch_param=""
 
   mkdir -p "$location_root"
 
@@ -275,8 +283,6 @@ function _ghd_run() {
   if [[ -n "$branch" ]] && [[ -z "$repo_name" ]]; then
     if [[ $is_question -eq 1 ]]; then
       new_branch_param="-b"
-    else
-      new_branch_param=""
     fi
 
     git checkout $new_branch_param "$branch"
