@@ -166,8 +166,8 @@ function _ghd_run() {
 
     readme_glob='[Rr][Ee][Aa][Dd][Mm][Ee].*'
     dest="$(echo "$matches" | \
-      $(__fzfcmd) --query="$query" --preview="
-        printf 'https://www.github.com/{}\n\n' &&
+      $(__fzfcmd) --query="$query" --preview=" \
+        printf 'https://www.github.com/{}\n\n' && \
         ( \
           ( \
             ls $location_root/{}/$readme_glob > /dev/null 2>&1 && \

@@ -58,13 +58,25 @@ commands:
 
 
 executors:
-  bats:
+  bats-linux:
     docker:
       - image: circleci/python:stretch-node
+  bats-osx:
+    macos:
+      xcode: 12.4.0
+
 
 jobs:
-  run-bats:
-    executor: bats
+  run-bats-linux:
+    executor: bats-linux
+    steps:
+      - checkout
+      - install-bats
+      - install-tap2junit
+      - run-bats
+
+  run-bats-osx:
+    executor: bats-osx
     steps:
       - checkout
       - install-bats
@@ -72,7 +84,7 @@ jobs:
       - run-bats
 
   run-coverage:
-    executor: bats
+    executor: bats-linux
     steps:
       - checkout
       - install-bats
@@ -84,5 +96,6 @@ workflows:
   version: 2.1
   test:
     jobs:
-      - run-bats
+      - run-bats-osx
+      - run-bats-linux
       - run-coverage
