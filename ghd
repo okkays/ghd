@@ -91,14 +91,16 @@ function _ghd_run() {
     local repo_url_or_name="$1"
     local name
     name="$(echo "$repo_url_or_name" | \
-      sed -e "s/$GITHUB_PREFIX//g" | \
-      sed -e "s/$GITHUB_SUFFIX//g")"
+      sed "s/$GITHUB_HTTPS_PREFIX//g" | \
+      sed "s/$GITHUB_GIT_PREFIX//g" | \
+      sed "s/$GITHUB_SUFFIX//g")"
     echo "$name"
   }
 
   function get_repo_url() { # repo_url_or_name
     local repo_url_or_name="$1"
-    if [[ $repo_url_or_name =~ ^$GITHUB_PREFIX ]]; then
+    if [[ $repo_url_or_name =~ ^$GITHUB_HTTPS_PREFIX ]] || \
+        [[ $repo_url_or_name =~ ^$GITHUB_GIT_PREFIX ]]; then
       echo "$repo_url_or_name"
     elif [[ $use_ssh -eq 1 ]]; then
       echo "git@github.com:$repo_url_or_name"
@@ -110,7 +112,8 @@ function _ghd_run() {
   function search_local() { # name
     local name="$1"
 
-    find $location_root -maxdepth 2 -name "*$name*" -printf "%P\n"
+    find $GHD_LOCATION -maxdepth 2 -name "*$name*" \
+      | cut -c$((${#GHD_LOCATION}+2))-
   }
 
   function search_gh() { # name
@@ -248,27 +251,28 @@ function _ghd_run() {
     [[ $repo_url_or_name == *'+' ]]
   do
     if [[ $repo_url_or_name == *'*' ]]; then
-      repo_url_or_name="${repo_url_or_name::-1}"
+      repo_url_or_name="${GHD_LOCATION%?}"
       is_apply_all=1
     fi
 
     if [[ $repo_url_or_name == *'!' ]]; then
-      repo_url_or_name="${repo_url_or_name::-1}"
+      repo_url_or_name="${GHD_LOCATION%?}"
       is_pull_requested=1
     fi
 
     if [[ $repo_url_or_name == *'?' ]]; then
-      repo_url_or_name="${repo_url_or_name::-1}"
+      repo_url_or_name="${GHD_LOCATION%?}"
       is_question=1
     fi
 
     if [[ $repo_url_or_name == *'+' ]]; then
-      repo_url_or_name="${repo_url_or_name::-1}"
+      repo_url_or_name="${GHD_LOCATION%?}"
       is_plus=1
     fi
   done
 
-  local GITHUB_PREFIX='^\(\(https:\/\/\)\|\(git@\)\)github\.com[:/]'
+  local GITHUB_HTTPS_PREFIX='^https:\/\/github\.com[:/]'
+  local GITHUB_GIT_PREFIX='^git@github\.com[:/]'
   local GITHUB_SUFFIX='\.git$'
 
   local repo_name
