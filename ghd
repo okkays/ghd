@@ -251,22 +251,22 @@ function _ghd_run() {
     [[ $repo_url_or_name == *'+' ]]
   do
     if [[ $repo_url_or_name == *'*' ]]; then
-      repo_url_or_name="${GHD_LOCATION%?}"
+      repo_url_or_name="${repo_url_or_name%?}"
       is_apply_all=1
     fi
 
     if [[ $repo_url_or_name == *'!' ]]; then
-      repo_url_or_name="${GHD_LOCATION%?}"
+      repo_url_or_name="${repo_url_or_name%?}"
       is_pull_requested=1
     fi
 
     if [[ $repo_url_or_name == *'?' ]]; then
-      repo_url_or_name="${GHD_LOCATION%?}"
+      repo_url_or_name="${repo_url_or_name%?}"
       is_question=1
     fi
 
     if [[ $repo_url_or_name == *'+' ]]; then
-      repo_url_or_name="${GHD_LOCATION%?}"
+      repo_url_or_name="${repo_url_or_name%?}"
       is_plus=1
     fi
   done
