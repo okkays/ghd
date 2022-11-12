@@ -5,6 +5,8 @@ setup() {
   GHD_LOCATION="$ghd_base/$BATS_TEST_NUMBER"
   GHD_USE_SSH=0
   gh_logged_out=1
+  remote_exists=0
+  gh_fail_create=0
   rm -rf "$GHD_LOCATION"
   fake_repo_name="ghd"
   fake_repo_owner="okkays"
@@ -22,7 +24,19 @@ setup() {
   }
 
   git() {
+    if [[ "$@" == "ls-remote"* ]]; then
+      if [[ $remote_exists -eq 0 ]]; then
+        return 1
+      else
+        return 0
+      fi
+    fi
+
     echo "MOCK: git $@"
+  }
+
+  rm() {
+    echo "MOCK: rm $@"
   }
 
   cd() {
@@ -48,6 +62,14 @@ setup() {
     if [[ "$@" == "repo list "* ]]; then
       echo "$fake_repo_owner/gh_$fake_repo_name"
       echo "$fake_repo_owner/gh_2_$fake_repo_name"
+      return 0
+    fi
+
+    if [[ "$@" == "repo create "* ]]; then
+      if [[ $gh_fail_create -eq 1 ]]; then
+        return 1
+      fi
+      echo "MOCK: gh $@"
       return 0
     fi
 
@@ -365,4 +387,46 @@ teardown() {
   [[ "$output" == *"$GHD_LOCATION/"* ]]
   [[ "${#lines[@]}" -eq 1 ]]
   [[ "$status" -eq 0 ]]
+}
+
+@test "creates new repo given + if gh unavailable" {
+  GHD_USE_SSH=1
+  gh_logged_out=1
+  run . ./ghd $fake_repo+
+  echo "$output"
+  [[ "$output" == *"MOCK: git init $GHD_LOCATION/$fake_repo"* ]]
+  [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$fake_repo"* ]]
+  [[ "$output" == *"MOCK: git remote add origin git@github.com:$fake_repo"* ]]
+  [[ "${#lines[@]}" -eq 3 ]]
+  [[ "$status" -eq 0 ]]
+}
+
+@test "creates new repo given + with gh available" {
+  GHD_USE_SSH=1
+  gh_logged_out=0
+  run . ./ghd $fake_repo+
+  echo "$output"
+  [[ "$output" == *"MOCK: git init $GHD_LOCATION/$fake_repo"* ]]
+  [[ "$output" == *"MOCK: cd "*"$GHD_LOCATION/$fake_repo"* ]]
+  [[ "$output" == *"MOCK: gh repo create $fake_repo --private --source ."* ]]
+  [[ "${#lines[@]}" -eq 3 ]]
+  [[ "$status" -eq 0 ]]
+}
+
+@test "cleans up a failed gh create" {
+  GHD_USE_SSH=1
+  gh_logged_out=0
+  gh_fail_create=1
+  run . ./ghd $fake_repo+
+  [[ "$output" == *"MOCK: rm -rf $GHD_LOCATION/$fake_repo"* ]]
+  [[ "${#lines[@]}" -eq 4 ]]
+  [[ "$status" -eq 3 ]]
+}
+
+@test "fails to create new repo given + if it exists" {
+  remote_exists=1
+  run . ./ghd $fake_repo+
+  [[ "$output" == *"exists on github: $fake_repo"* ]]
+  [[ "${#lines[@]}" -eq 1 ]]
+  [[ "$status" -eq 2 ]]
 }

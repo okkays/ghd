@@ -83,6 +83,15 @@ ghd
 
 ![Animated example of using ghd results in a fzf list](ghd_fzf.gif)
 
+If you want to create a new repo, you can use:
+
+```bash
+ghd okkays/my_new_repo+
+```
+
+- The created repo will be private by default.
+- This will fail if your repo already exists.
+
 If you've already checked out some of a user's repos, you can switch to that user's directory:
 
 ```bash
